@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectServer } from '../actions';
 
 const ServerList = () => {
-  const servers = useSelector(state => state.servers.allIds.map(id => state.servers.byId[id]));
+  const servers = useSelector(state => Object.values(state.servers.byId));
   const selectedServerId = useSelector(state => state.ui.selectedServer);
   const dispatch = useDispatch();
 

@@ -1,4 +1,4 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_SERVER, ADD_RANDOM_CHANNEL } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_SERVER, ADD_RANDOM_CHANNEL, ADD_USER } from '../actions/types';
 
 const initialState = {
   byId: {},
@@ -33,6 +33,19 @@ const serversReducer = (state = initialState, action) => {
           [serverId]: {
             ...server,
             channels: [...server.channels, channel.id],
+          },
+        },
+      };
+    case ADD_USER:
+      const { serverId: newServerId, user } = action.payload;
+      const serverToUpdate = state.byId[newServerId];
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [newServerId]: {
+            ...serverToUpdate,
+            users: [...(serverToUpdate.users ?? []), user.id],
           },
         },
       };

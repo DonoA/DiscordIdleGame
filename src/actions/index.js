@@ -6,6 +6,7 @@ import {
   ADD_RANDOM_SERVER,
   ADD_RANDOM_CHANNEL,
   ADD_RANDOM_MESSAGE,
+  ADD_USER,
 } from './types';
 
 export const selectServer = (serverId) => ({
@@ -52,6 +53,18 @@ export const addRandomMessage = (channelId) => ({
       id: uuidv4(),
       author: 'Roo',
       content: `Random message: ${uuidv4()}`,
+    },
+  },
+});
+
+export const addUser = (serverId) => ({
+  type: ADD_USER,
+  payload: {
+    serverId,
+    user: {
+      id: uuidv4(),
+      name: `User ${Math.floor(Math.random() * 1000)}`,
+      serverId,
     },
   },
 });

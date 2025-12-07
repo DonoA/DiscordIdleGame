@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRandomServer, addRandomChannel, addRandomMessage } from '../actions';
+import { addRandomServer, addRandomChannel, addRandomMessage, addUser } from '../actions';
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
@@ -27,11 +27,20 @@ const ControlPanel = () => {
     }
   };
 
+  const handleAddUser = () => {
+    if (selectedServerId) {
+      dispatch(addUser(selectedServerId));
+    } else {
+      alert('Please select a server first.');
+    }
+  };
+
   return (
     <div className="control-panel">
       <button onClick={handleAddServer}>Add Random Server</button>
       <button onClick={handleAddChannel}>Add Random Channel</button>
       <button onClick={handleAddMessage}>Add Random Message</button>
+      <button onClick={handleAddUser}>Add User</button>
     </div>
   );
 };
