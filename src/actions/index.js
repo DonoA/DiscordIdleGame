@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { loadInitialData as fetchData } from '../utils/dataLoader';
 import {
   SELECT_SERVER,
@@ -13,14 +12,14 @@ import {
   INCREMENT_BITS,
 } from './types';
 
-export const selectServer = (serverId) => ({
+export const selectServer = (serverName) => ({
   type: SELECT_SERVER,
-  payload: serverId,
+  payload: serverName,
 });
 
-export const selectChannel = (channelId) => ({
+export const selectChannel = (channelName) => ({
   type: SELECT_CHANNEL,
-  payload: channelId,
+  payload: channelName,
 });
 
 export const loadInitialData = () => async (dispatch) => {
@@ -35,110 +34,92 @@ export const addRandomServer = () => async (dispatch, getState) => {
   const { servers } = getState();
   const serversRes = await fetch('/servers_and_channels.json');
   const serversData = await serversRes.json();
-  const existingServerNames = Object.values(servers.byId).map(s => s.name);
+  const existingServerNames = Object.keys(servers);
   const availableServers = serversData.filter(s => !existingServerNames.includes(s.name));
 
   if (availableServers.length > 0) {
-    const serverName = availableServers[Math.floor(Math.random() * availableServers.length)].name;
+    const serverInfo = availableServers[Math.floor(Math.random() * availableServers.length)];
     dispatch({
       type: ADD_RANDOM_SERVER,
-      payload: {
-        id: uuidv4(),
-        name: serverName,
-        channels: [],
-        users: [], // Initialize with no users
-      },
+      payload: { server: { name: serverInfo.name } },
     });
   }
 };
 
-export const addRandomChannel = (serverId) => async (dispatch, getState) => {
-  const { servers, channels } = getState();
-  const server = servers.byId[serverId];
-  if (!server) return;
-
+export const addRandomChannel = (serverName) => async (dispatch, getState) => {
+  const { channels } = getState();
   const serversRes = await fetch('/servers_and_channels.json');
   const serversData = await serversRes.json();
-  const serverTheme = serversData.find(s => s.name === server.name);
+  const serverTheme = serversData.find(s => s.name === serverName);
 
   if (serverTheme) {
-    const existingChannelNames = server.channels.map(cId => channels.byId[cId].name);
+    const existingTextChannels = Object.keys(channels.textByServer[serverName] || {});
+    const existingVoiceChannels = Object.keys(channels.voiceByServer[serverName] || {});
+    const existingChannelNames = [...existingTextChannels, ...existingVoiceChannels];
     const availableChannels = serverTheme.channels.filter(c => !existingChannelNames.includes(c.name));
 
     if (availableChannels.length > 0) {
       const randomChannelInfo = availableChannels[Math.floor(Math.random() * availableChannels.length)];
+      const channel = {
+        name: randomChannelInfo.name,
+        type: randomChannelInfo.type,
+      };
+      if (channel.type === 'text') {
+        channel.messageCount = 0;
+      } else {
+        channel.users = [];
+      }
       dispatch({
         type: ADD_RANDOM_CHANNEL,
-        payload: {
-          serverId,
-          channel: {
-            id: uuidv4(),
-            name: randomChannelInfo.name,
-            type: randomChannelInfo.type,
-            users: [],
-          },
-        },
+        payload: { serverName, channel },
       });
     }
   }
 };
 
-export const userJoinVoice = (userId, channelId) => ({
+export const userJoinVoice = (serverName, channelName, userName) => ({
   type: USER_JOIN_VOICE,
-  payload: { userId, channelId },
+  payload: { serverName, channelName, userName },
 });
 
-export const userLeaveVoice = (userId, channelId) => ({
+export const userLeaveVoice = (serverName, channelName, userName) => ({
   type: USER_LEAVE_VOICE,
-  payload: { userId, channelId },
+  payload: { serverName, channelName, userName },
 });
 
-export const addRandomMessage = (channelId, userName) => async (dispatch, getState) => {
-  const { servers } = getState();
-  const server = Object.values(servers.byId).find(s => s.channels.includes(channelId));
-  console.log('Adding random message to channel:', channelId, server, userName);
+export const addRandomMessage = (serverName, channelName, userName) => async (dispatch, getState) => {
+  const { users } = getState();
+  const serverUsers = users.usersByServer[serverName];
 
-  if (server) {
+  if (serverUsers) {
     const messagesRes = await fetch('/messages.json');
     const messageList = await messagesRes.json();
 
-
     const message = {
-      id: uuidv4(),
       author: userName,
       content: messageList[Math.floor(Math.random() * messageList.length)],
     };
 
     dispatch({
       type: ADD_RANDOM_MESSAGE,
-      payload: {
-        channelId,
-        message,
-      },
+      payload: { serverName, channelName, message },
     });
     dispatch(incrementBits(1));
   }
 };
 
-export const addUser = (serverId) => async (dispatch, getState) => {
+export const addUser = (serverName) => async (dispatch, getState) => {
   const { users } = getState();
   const usersRes = await fetch('/users.json');
   const usersList = await usersRes.json();
-  const existingUserNames = Object.values(users.byId).map(u => u.name);
-  const availableUsers = usersList.filter(name => !existingUserNames.includes(name));
+  const serverUsers = users.usersByServer[serverName] || [];
+  const availableUsers = usersList.filter(name => !serverUsers.includes(name));
 
   if (availableUsers.length > 0) {
     const userName = availableUsers[Math.floor(Math.random() * availableUsers.length)];
     dispatch({
       type: ADD_USER,
-      payload: {
-        serverId,
-        user: {
-          id: uuidv4(),
-          name: userName,
-          serverId,
-        },
-      },
+      payload: { serverName, userName },
     });
   }
 };

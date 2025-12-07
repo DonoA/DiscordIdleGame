@@ -1,53 +1,62 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE, ADD_RANDOM_MESSAGE } from '../actions/types';
 
 const initialState = {
-  byId: {},
-  allIds: [],
+  textByServer: {},
+  voiceByServer: {},
 };
 
 const channelsReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
-      return {
-        ...state,
-        byId: action.payload.channels.byId,
-        allIds: action.payload.channels.allIds,
-      };
-    case ADD_RANDOM_CHANNEL:
-      const { channel } = action.payload;
-      return {
-        ...state,
-        byId: {
-          ...state.byId,
-          [channel.id]: channel,
-        },
-        allIds: [...state.allIds, channel.id],
-      };
+      return action.payload.channels;
+    case ADD_RANDOM_CHANNEL: {
+      const { serverName, channel } = action.payload;
+      const { type, name } = channel;
+      const serverChannels = type === 'text' ? state.textByServer[serverName] : state.voiceByServer[serverName];
+      const updatedChannels = { ...serverChannels, [name]: channel };
+
+      if (type === 'text') {
+        return { ...state, textByServer: { ...state.textByServer, [serverName]: updatedChannels } };
+      } else {
+        return { ...state, voiceByServer: { ...state.voiceByServer, [serverName]: updatedChannels } };
+      }
+    }
     case USER_JOIN_VOICE: {
-      const { userId, channelId } = action.payload;
-      const channel = state.byId[channelId];
+      const { serverName, channelName, userName } = action.payload;
+      const voiceChannels = state.voiceByServer[serverName];
+      const channel = voiceChannels[channelName];
+      const updatedChannel = { ...channel, users: [...channel.users, userName] };
       return {
         ...state,
-        byId: {
-          ...state.byId,
-          [channelId]: {
-            ...channel,
-            users: [...channel.users, userId],
-          },
+        voiceByServer: {
+          ...state.voiceByServer,
+          [serverName]: { ...voiceChannels, [channelName]: updatedChannel },
         },
       };
     }
     case USER_LEAVE_VOICE: {
-      const { userId, channelId } = action.payload;
-      const channel = state.byId[channelId];
+      const { serverName, channelName, userName } = action.payload;
+      const voiceChannels = state.voiceByServer[serverName];
+      const channel = voiceChannels[channelName];
+      const updatedChannel = { ...channel, users: channel.users.filter(u => u !== userName) };
       return {
         ...state,
-        byId: {
-          ...state.byId,
-          [channelId]: {
-            ...channel,
-            users: channel.users.filter(id => id !== userId),
-          },
+        voiceByServer: {
+          ...state.voiceByServer,
+          [serverName]: { ...voiceChannels, [channelName]: updatedChannel },
+        },
+      };
+    }
+    case ADD_RANDOM_MESSAGE: {
+      const { serverName, channelName } = action.payload;
+      const textChannels = state.textByServer[serverName];
+      const channel = textChannels[channelName];
+      const updatedChannel = { ...channel, messageCount: channel.messageCount + 1 };
+      return {
+        ...state,
+        textByServer: {
+          ...state.textByServer,
+          [serverName]: { ...textChannels, [channelName]: updatedChannel },
         },
       };
     }

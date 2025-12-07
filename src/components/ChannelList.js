@@ -3,51 +3,46 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectChannel } from '../actions';
 
 const ChannelList = () => {
-  const selectedServerId = useSelector(state => state.ui.selectedServer);
-  const server = useSelector(state => state.servers.byId[selectedServerId]);
-  const channels = useSelector(state => {
-    if (!server) return [];
-    return server.channels.map(id => state.channels.byId[id]);
-  });
-  const messages = useSelector(state => state.messages.byChannel);
-  const users = useSelector(state => state.users.byId);
-  const bits = useSelector(state => state.bits);
-  const selectedChannelId = useSelector(state => state.ui.selectedChannel);
   const dispatch = useDispatch();
+  const bits = useSelector(state => state.bits);
+  const selectedServerName = useSelector(state => state.ui.selectedServer);
+  const selectedChannelName = useSelector(state => state.ui.selectedChannel);
+
+  const server = useSelector(state => state.servers[selectedServerName]);
+  const users = useSelector(state => state.users.usersByServer[selectedServerName] || []);
+  const textChannels = useSelector(state => Object.values(state.channels.textByServer[selectedServerName] || {}));
+  const voiceChannels = useSelector(state => Object.values(state.channels.voiceByServer[selectedServerName] || {}));
 
   if (!server) {
     return <div className="channel-list"></div>;
   }
 
-  const textChannels = channels.filter(c => c.type === 'text');
-  const voiceChannels = channels.filter(c => c.type === 'voice');
-
   return (
     <div className="channel-list">
       <div className="bit-counter">Bits: {bits}</div>
       <h2>{server.name}</h2>
-      <div>Users: {server.users?.length ?? 0}</div>
+      <div>Users: {users.length}</div>
       <div className="channel-category">
         <h4>Text Channels</h4>
         {textChannels.map(channel => (
           <div
-            key={channel.id}
-            className={`channel ${channel.id === selectedChannelId ? 'active' : ''}`}
-            onClick={() => dispatch(selectChannel(channel.id))}
+            key={channel.name}
+            className={`channel ${channel.name === selectedChannelName ? 'active' : ''}`}
+            onClick={() => dispatch(selectChannel(channel.name))}
           >
-            # {channel.name} ({messages[channel.id] ? messages[channel.id].totalCount : 0})
+            # {channel.name} ({channel.messageCount})
           </div>
         ))}
       </div>
       <div className="channel-category">
         <h4>Voice Channels</h4>
         {voiceChannels.map(channel => (
-          <div key={channel.id} className="channel-voice">
+          <div key={channel.name} className="channel-voice">
            <div className="channel-name">&#128266; {channel.name}</div>
            <div className="channel-users">
-             {channel.users.map(userId => (
-               <div key={userId} className="user-in-voice">
-                 {users[userId]?.name}
+             {channel.users.map(userName => (
+               <div key={userName} className="user-in-voice">
+                 {userName}
                </div>
              ))}
            </div>

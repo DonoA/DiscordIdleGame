@@ -4,32 +4,34 @@ import { addRandomServer, addRandomChannel, addRandomMessage, addUser } from '..
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
-  const selectedServerId = useSelector(state => state.ui.selectedServer);
-  const selectedChannelId = useSelector(state => state.ui.selectedChannel);
+  const selectedServerName = useSelector(state => state.ui.selectedServer);
+  const selectedChannelName = useSelector(state => state.ui.selectedChannel);
+  const state = useSelector(state => state);
+  console.log('State:', state);
 
   const handleAddServer = () => {
     dispatch(addRandomServer());
   };
 
   const handleAddChannel = () => {
-    if (selectedServerId) {
-      dispatch(addRandomChannel(selectedServerId));
+    if (selectedServerName) {
+      dispatch(addRandomChannel(selectedServerName));
     } else {
       alert('Please select a server first.');
     }
   };
 
   const handleAddMessage = () => {
-    if (selectedChannelId) {
-      dispatch(addRandomMessage(selectedChannelId, "admin"));
+    if (selectedServerName && selectedChannelName) {
+      dispatch(addRandomMessage(selectedServerName, selectedChannelName, 'admin'));
     } else {
-      alert('Please select a channel first.');
+      alert('Please select a server and channel first.');
     }
   };
 
   const handleAddUser = () => {
-    if (selectedServerId) {
-      dispatch(addUser(selectedServerId));
+    if (selectedServerName) {
+      dispatch(addUser(selectedServerName));
     } else {
       alert('Please select a server first.');
     }

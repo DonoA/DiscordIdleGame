@@ -1,68 +1,40 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export const loadInitialData = async () => {
   const serversRes = await fetch('/servers_and_channels.json');
   const serversData = await serversRes.json();
 
-  const users = {
-    byId: {},
-    allIds: [],
-  };
-
-  const servers = {
-    byId: {},
-    allIds: [],
-  };
-
-  const channels = {
-    byId: {},
-    allIds: [],
-  };
-
-  const messages = {
-    byChannel: {},
-  };
+  const servers = {};
+  const users = { usersByServer: {} };
+  const channels = { textByServer: {}, voiceByServer: {} };
+  const messages = { byServer: {} };
 
   // Pick a random server theme from the data
   const randomServerInfo = serversData[Math.floor(Math.random() * serversData.length)];
+  const serverName = randomServerInfo.name;
+
+  // Create server
+  servers[serverName] = { name: serverName };
+  users.usersByServer[serverName] = [];
+  messages.byServer[serverName] = {};
+  channels.textByServer[serverName] = {};
+  channels.voiceByServer[serverName] = {};
+
+  // Create channels for the server
   const textChannelInfo = randomServerInfo.channels.find(c => c.type === 'text');
+  if (textChannelInfo) {
+    channels.textByServer[serverName][textChannelInfo.name] = {
+      name: textChannelInfo.name,
+      messageCount: 0,
+    };
+    messages.byServer[serverName][textChannelInfo.name] = [];
+  }
+
   const voiceChannelInfo = randomServerInfo.channels.find(c => c.type === 'voice');
-
-  // Create one server
-  const serverId = uuidv4();
-  servers.byId[serverId] = {
-    id: serverId,
-    name: randomServerInfo.name,
-    channels: [],
-    users: [],
-  };
-  servers.allIds.push(serverId);
-
-  // Create one text channel
-  const textChannelId = uuidv4();
-  channels.byId[textChannelId] = {
-    id: textChannelId,
-    name: textChannelInfo ? textChannelInfo.name : 'general',
-    type: 'text',
-    users: [],
-  };
-  channels.allIds.push(textChannelId);
-  servers.byId[serverId].channels.push(textChannelId);
-  messages.byChannel[textChannelId] = [];
-
-  // Create one voice channel
-  const voiceChannelId = uuidv4();
-  channels.byId[voiceChannelId] = {
-    id: voiceChannelId,
-    name: voiceChannelInfo ? voiceChannelInfo.name : 'Lobby',
-    type: 'voice',
-    users: [],
-  };
-  channels.allIds.push(voiceChannelId);
-  servers.byId[serverId].channels.push(voiceChannelId);
-
-  const selectedServer = serverId;
-  const selectedChannel = textChannelId;
+  if (voiceChannelInfo) {
+    channels.voiceByServer[serverName][voiceChannelInfo.name] = {
+      name: voiceChannelInfo.name,
+      users: [],
+    };
+  }
 
   return {
     servers,
@@ -70,8 +42,8 @@ export const loadInitialData = async () => {
     messages,
     users,
     ui: {
-      selectedServer,
-      selectedChannel,
+      selectedServer: serverName,
+      selectedChannel: textChannelInfo ? textChannelInfo.name : null,
     },
   };
 };

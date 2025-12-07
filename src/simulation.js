@@ -1,61 +1,85 @@
 import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits } from './actions';
 
-let simulationInterval = null;
+let simulationHandle = null;
 
-const startSimulation = async (store) => {
-  if (simulationInterval) {
-    clearInterval(simulationInterval);
+const TICK_RATE = 30; // Ticks per second
+const TICK_INTERVAL = 1000 / TICK_RATE;
+
+let lastMessageTime = 0;
+let lastUserMoveTime = 0;
+let lastBitsGenerationTime = 0;
+
+const startSimulation = (store) => {
+  if (simulationHandle) {
+    clearInterval(simulationHandle);
   }
 
-  simulationInterval = setInterval(() => {
+  const simulationLoop = () => {
+    const now = Date.now();
     const state = store.getState();
     const { users, servers, channels } = state;
+    const serverNames = Object.keys(servers);
 
-    if (users.allIds.length === 0 || servers.allIds.length === 0) {
-      return;
-    }
+    if (serverNames.length === 0) return;
 
-    // Simulate user joining/leaving voice channels
-    const randomUserId = users.allIds[Math.floor(Math.random() * users.allIds.length)];
-    const user = users.byId[randomUserId];
-    const server = servers.byId[Object.keys(servers.byId).find(serverId => servers.byId[serverId].users.includes(randomUserId))];
+    // --- User Movement Simulation (every 2 seconds) ---
+    if (now - lastUserMoveTime > 2000) {
+      const serverName = serverNames[Math.floor(Math.random() * serverNames.length)];
+      const serverUsers = users.usersByServer[serverName];
+      const voiceChannels = channels.voiceByServer[serverName];
 
-    if (server) {
-      const voiceChannels = server.channels.map(id => channels.byId[id]).filter(c => c && c.type === 'voice');
-      if (user.currentVoiceChannel) {
-        if (Math.random() < 0.3) { // 30% chance to leave
-          store.dispatch(userLeaveVoice(user.id, user.currentVoiceChannel));
-        }
-      } else {
-        if (Math.random() < 0.2 && voiceChannels.length > 0) { // 20% chance to join
-          const randomChannel = voiceChannels[Math.floor(Math.random() * voiceChannels.length)];
-          store.dispatch(userJoinVoice(user.id, randomChannel.id));
+      if (serverUsers && serverUsers.length > 0 && voiceChannels && Object.keys(voiceChannels).length > 0) {
+        const userName = serverUsers[Math.floor(Math.random() * serverUsers.length)];
+        const currentlyInChannel = Object.values(voiceChannels).find(vc => vc.users.includes(userName));
+
+        if (currentlyInChannel) {
+          if (Math.random() < 0.3) { // 30% chance to leave
+            store.dispatch(userLeaveVoice(serverName, currentlyInChannel.name, userName));
+          }
+        } else {
+          if (Math.random() < 0.2) { // 20% chance to join
+            const randomChannelName = Object.keys(voiceChannels)[Math.floor(Math.random() * Object.keys(voiceChannels).length)];
+            store.dispatch(userJoinVoice(serverName, randomChannelName, userName));
+          }
         }
       }
+      lastUserMoveTime = now;
     }
 
+    // --- Message Simulation (every 1 second) ---
+    if (now - lastMessageTime > 1000) {
+      const serverName = serverNames[Math.floor(Math.random() * serverNames.length)];
+      const serverUsers = users.usersByServer[serverName];
+      const textChannels = channels.textByServer[serverName];
 
-    // Simulate random messages
-    if (Math.random() < 0.5) { // 50% chance to send a message
-      const randomServerId = servers.allIds[Math.floor(Math.random() * servers.allIds.length)];
-      const randomServer = servers.byId[randomServerId];
-      const textChannels = randomServer.channels.map(id => channels.byId[id]).filter(c => c && c.type === 'text');
-
-      if (textChannels.length > 0 && randomServer.users.length > 0) {
-        const randomChannelId = textChannels[Math.floor(Math.random() * textChannels.length)].id;
-        const randomUserId = randomServer.users[Math.floor(Math.random() * randomServer.users.length)];
-        const randomUser = users.byId[randomUserId];
-        store.dispatch(addRandomMessage(randomChannelId, randomUser.name));
+      if (serverUsers && serverUsers.length > 0 && textChannels && Object.keys(textChannels).length > 0) {
+        const channelName = Object.keys(textChannels)[Math.floor(Math.random() * Object.keys(textChannels).length)];
+        const userName = serverUsers[Math.floor(Math.random() * serverUsers.length)];
+        store.dispatch(addRandomMessage(serverName, channelName, userName));
       }
+      lastMessageTime = now;
     }
 
-    // Grant bits for users in voice channels
-    const usersInVoice = Object.values(users.byId).filter(u => u.currentVoiceChannel).length;
-    if (usersInVoice > 0) {
-      store.dispatch(incrementBits(usersInVoice * 2)); // 2 bits per user every 2 seconds
-    }
+    // --- Bits Generation (every 2 seconds) ---
+    if (now - lastBitsGenerationTime > 2000) {
+      let usersInVoice = 0;
+      serverNames.forEach(serverName => {
+        const voiceChannels = channels.voiceByServer[serverName];
+        if (voiceChannels) {
+          Object.values(voiceChannels).forEach(vc => {
+            usersInVoice += vc.users.length;
+          });
+        }
+      });
 
-  }, 2000); // Run simulation every 2 seconds
+      if (usersInVoice > 0) {
+        store.dispatch(incrementBits(usersInVoice));
+      }
+      lastBitsGenerationTime = now;
+    }
+  };
+
+  simulationHandle = setInterval(simulationLoop, TICK_INTERVAL);
 };
 
 export default startSimulation;
