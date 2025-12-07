@@ -1,4 +1,4 @@
-import { userJoinVoice, userLeaveVoice, addRandomMessage } from './actions';
+import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits } from './actions';
 
 let simulationInterval = null;
 
@@ -6,9 +6,6 @@ const startSimulation = async (store) => {
   if (simulationInterval) {
     clearInterval(simulationInterval);
   }
-
-  const messagesRes = await fetch('/messages.json');
-  const messageList = await messagesRes.json();
 
   simulationInterval = setInterval(() => {
     const state = store.getState();
@@ -48,14 +45,14 @@ const startSimulation = async (store) => {
         const randomChannelId = textChannels[Math.floor(Math.random() * textChannels.length)].id;
         const randomUserId = randomServer.users[Math.floor(Math.random() * randomServer.users.length)];
         const randomUser = users.byId[randomUserId];
-        
-        const message = {
-          id: Date.now().toString(),
-          author: randomUser.name,
-          content: messageList[Math.floor(Math.random() * messageList.length)],
-        };
-        store.dispatch(addRandomMessage(randomChannelId, message));
+        store.dispatch(addRandomMessage(randomChannelId, randomUser.name));
       }
+    }
+
+    // Grant bits for users in voice channels
+    const usersInVoice = Object.values(users.byId).filter(u => u.currentVoiceChannel).length;
+    if (usersInVoice > 0) {
+      store.dispatch(incrementBits(usersInVoice * 2)); // 2 bits per user every 2 seconds
     }
 
   }, 2000); // Run simulation every 2 seconds

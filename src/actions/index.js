@@ -10,6 +10,7 @@ import {
   ADD_USER,
   USER_JOIN_VOICE,
   USER_LEAVE_VOICE,
+  INCREMENT_BITS,
 } from './types';
 
 export const selectServer = (serverId) => ({
@@ -92,13 +93,32 @@ export const userLeaveVoice = (userId, channelId) => ({
   payload: { userId, channelId },
 });
 
-export const addRandomMessage = (channelId, message) => ({
-  type: ADD_RANDOM_MESSAGE,
-  payload: {
-    channelId,
-    message,
-  },
-});
+export const addRandomMessage = (channelId, userName) => async (dispatch, getState) => {
+  const { servers } = getState();
+  const server = Object.values(servers.byId).find(s => s.channels.includes(channelId));
+  console.log('Adding random message to channel:', channelId, server, userName);
+
+  if (server) {
+    const messagesRes = await fetch('/messages.json');
+    const messageList = await messagesRes.json();
+
+
+    const message = {
+      id: uuidv4(),
+      author: userName,
+      content: messageList[Math.floor(Math.random() * messageList.length)],
+    };
+
+    dispatch({
+      type: ADD_RANDOM_MESSAGE,
+      payload: {
+        channelId,
+        message,
+      },
+    });
+    dispatch(incrementBits(1));
+  }
+};
 
 export const addUser = (serverId) => async (dispatch, getState) => {
   const { users } = getState();
@@ -122,3 +142,8 @@ export const addUser = (serverId) => async (dispatch, getState) => {
     });
   }
 };
+
+export const incrementBits = (amount) => ({
+  type: INCREMENT_BITS,
+  payload: amount,
+});

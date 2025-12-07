@@ -4,6 +4,7 @@ import channelsReducer from './channelsReducer';
 import messagesReducer from './messagesReducer';
 import uiReducer from './uiReducer';
 import usersReducer from './usersReducer';
+import bitsReducer from './bitsReducer';
 
 export default combineReducers({
   servers: serversReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   messages: messagesReducer,
   ui: uiReducer,
   users: usersReducer,
+  bits: bitsReducer,
 });

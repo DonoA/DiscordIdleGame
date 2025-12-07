@@ -11,6 +11,7 @@ const ChannelList = () => {
   });
   const messages = useSelector(state => state.messages.byChannel);
   const users = useSelector(state => state.users.byId);
+  const bits = useSelector(state => state.bits);
   const selectedChannelId = useSelector(state => state.ui.selectedChannel);
   const dispatch = useDispatch();
 
@@ -23,6 +24,7 @@ const ChannelList = () => {
 
   return (
     <div className="channel-list">
+      <div className="bit-counter">Bits: {bits}</div>
       <h2>{server.name}</h2>
       <div>Users: {server.users?.length ?? 0}</div>
       <div className="channel-category">

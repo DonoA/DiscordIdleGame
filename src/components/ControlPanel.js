@@ -21,7 +21,7 @@ const ControlPanel = () => {
 
   const handleAddMessage = () => {
     if (selectedChannelId) {
-      dispatch(addRandomMessage(selectedChannelId));
+      dispatch(addRandomMessage(selectedChannelId, "admin"));
     } else {
       alert('Please select a channel first.');
     }
