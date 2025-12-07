@@ -1,4 +1,4 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE, ADD_RANDOM_MESSAGE } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE, ADD_RANDOM_MESSAGE, ADD_TEXT_CHANNEL, ADD_VOICE_CHANNEL } from '../actions/types';
 
 const initialState = {
   textByServer: {},
@@ -9,7 +9,10 @@ const channelsReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return action.payload.channels;
-    case ADD_RANDOM_CHANNEL: {
+    case ADD_RANDOM_CHANNEL:
+    case ADD_TEXT_CHANNEL:
+    case ADD_VOICE_CHANNEL:
+    {
       const { serverName, channel } = action.payload;
       const { type, name } = channel;
       const serverChannels = type === 'text' ? state.textByServer[serverName] : state.voiceByServer[serverName];

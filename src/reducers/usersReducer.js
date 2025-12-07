@@ -8,7 +8,7 @@ const usersReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return action.payload.users;
-    case ADD_USER:
+    case ADD_USER: {
       const { serverName, userName } = action.payload;
       const serverUsers = state.usersByServer[serverName] || [];
       return {
@@ -18,6 +18,7 @@ const usersReducer = (state = initialState, action) => {
           [serverName]: [...serverUsers, userName],
         },
       };
+    }
     default:
       return state;
   }

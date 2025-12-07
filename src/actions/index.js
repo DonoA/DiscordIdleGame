@@ -10,6 +10,11 @@ import {
   USER_JOIN_VOICE,
   USER_LEAVE_VOICE,
   INCREMENT_BITS,
+  SPEND_BITS,
+  TOGGLE_DEV_MODE,
+  ADD_SERVER,
+  ADD_TEXT_CHANNEL,
+  ADD_VOICE_CHANNEL,
 } from './types';
 
 export const selectServer = (serverName) => ({
@@ -30,50 +35,51 @@ export const loadInitialData = () => async (dispatch) => {
   });
 };
 
-export const addRandomServer = () => async (dispatch, getState) => {
-  const { servers } = getState();
-  const serversRes = await fetch('/servers_and_channels.json');
-  const serversData = await serversRes.json();
-  const existingServerNames = Object.keys(servers);
-  const availableServers = serversData.filter(s => !existingServerNames.includes(s.name));
+export const addServer = (serverName) => (dispatch, getState) => {
+  const { servers, bits, ui } = getState();
+  const numServers = Object.keys(servers).length;
+  const cost = 10000 * (1.5 ** numServers);
 
-  if (availableServers.length > 0) {
-    const serverInfo = availableServers[Math.floor(Math.random() * availableServers.length)];
+  if (ui.devMode || bits >= cost) {
+    if (!ui.devMode) {
+      dispatch(spendBits(cost));
+    }
     dispatch({
-      type: ADD_RANDOM_SERVER,
-      payload: { server: { name: serverInfo.name } },
+      type: ADD_SERVER,
+      payload: { server: { name: serverName } },
     });
   }
 };
 
-export const addRandomChannel = (serverName) => async (dispatch, getState) => {
-  const { channels } = getState();
-  const serversRes = await fetch('/servers_and_channels.json');
-  const serversData = await serversRes.json();
-  const serverTheme = serversData.find(s => s.name === serverName);
+export const addTextChannel = (serverName, channelName) => (dispatch, getState) => {
+  const { channels, bits, ui } = getState();
+  const numChannels = Object.keys(channels.textByServer[serverName] || {}).length + Object.keys(channels.voiceByServer[serverName] || {}).length;
+  const cost = 1000 * (1.2 ** numChannels);
 
-  if (serverTheme) {
-    const existingTextChannels = Object.keys(channels.textByServer[serverName] || {});
-    const existingVoiceChannels = Object.keys(channels.voiceByServer[serverName] || {});
-    const existingChannelNames = [...existingTextChannels, ...existingVoiceChannels];
-    const availableChannels = serverTheme.channels.filter(c => !existingChannelNames.includes(c.name));
-
-    if (availableChannels.length > 0) {
-      const randomChannelInfo = availableChannels[Math.floor(Math.random() * availableChannels.length)];
-      const channel = {
-        name: randomChannelInfo.name,
-        type: randomChannelInfo.type,
-      };
-      if (channel.type === 'text') {
-        channel.messageCount = 0;
-      } else {
-        channel.users = [];
-      }
-      dispatch({
-        type: ADD_RANDOM_CHANNEL,
-        payload: { serverName, channel },
-      });
+  if (ui.devMode || bits >= cost) {
+    if (!ui.devMode) {
+      dispatch(spendBits(cost));
     }
+    dispatch({
+      type: ADD_TEXT_CHANNEL,
+      payload: { serverName, channel: { name: channelName, type: 'text', messageCount: 0 } },
+    });
+  }
+};
+
+export const addVoiceChannel = (serverName, channelName) => (dispatch, getState) => {
+  const { channels, bits, ui } = getState();
+  const numChannels = Object.keys(channels.textByServer[serverName] || {}).length + Object.keys(channels.voiceByServer[serverName] || {}).length;
+  const cost = 1000 * (1.2 ** numChannels);
+
+  if (ui.devMode || bits >= cost) {
+    if (!ui.devMode) {
+      dispatch(spendBits(cost));
+    }
+    dispatch({
+      type: ADD_VOICE_CHANNEL,
+      payload: { serverName, channel: { name: channelName, type: 'voice', users: [] } },
+    });
   }
 };
 
@@ -108,15 +114,15 @@ export const addRandomMessage = (serverName, channelName, userName) => async (di
   }
 };
 
-export const addUser = (serverName) => async (dispatch, getState) => {
-  const { users } = getState();
-  const usersRes = await fetch('/users.json');
-  const usersList = await usersRes.json();
-  const serverUsers = users.usersByServer[serverName] || [];
-  const availableUsers = usersList.filter(name => !serverUsers.includes(name));
+export const addUser = (serverName, userName) => (dispatch, getState) => {
+  const { users, bits, ui } = getState();
+  const numUsers = (users.usersByServer[serverName] || []).length;
+  const cost = 100 * (1.1 ** numUsers);
 
-  if (availableUsers.length > 0) {
-    const userName = availableUsers[Math.floor(Math.random() * availableUsers.length)];
+  if (ui.devMode || bits >= cost) {
+    if (!ui.devMode) {
+      dispatch(spendBits(cost));
+    }
     dispatch({
       type: ADD_USER,
       payload: { serverName, userName },
@@ -127,4 +133,13 @@ export const addUser = (serverName) => async (dispatch, getState) => {
 export const incrementBits = (amount) => ({
   type: INCREMENT_BITS,
   payload: amount,
+});
+
+export const spendBits = (amount) => ({
+  type: SPEND_BITS,
+  payload: amount,
+});
+
+export const toggleDevMode = () => ({
+  type: TOGGLE_DEV_MODE,
 });

@@ -1,8 +1,9 @@
-import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA } from '../actions/types';
+import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA, TOGGLE_DEV_MODE } from '../actions/types';
 
 const initialState = {
   selectedServer: null,
   selectedChannel: null,
+  devMode: false,
 };
 
 const uiReducer = (state = initialState, action) => {
@@ -23,6 +24,11 @@ const uiReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedChannel: action.payload,
+      };
+    case TOGGLE_DEV_MODE:
+      return {
+        ...state,
+        devMode: !state.devMode,
       };
     default:
       return state;

@@ -9,3 +9,9 @@ export const ADD_USER = 'ADD_USER';
 export const USER_JOIN_VOICE = 'USER_JOIN_VOICE';
 export const USER_LEAVE_VOICE = 'USER_LEAVE_VOICE';
 export const INCREMENT_BITS = 'INCREMENT_BITS';
+export const SPEND_BITS = 'SPEND_BITS';
+export const TOGGLE_DEV_MODE = 'TOGGLE_DEV_MODE';
+
+export const ADD_SERVER = 'ADD_SERVER';
+export const ADD_TEXT_CHANNEL = 'ADD_TEXT_CHANNEL';
+export const ADD_VOICE_CHANNEL = 'ADD_VOICE_CHANNEL';
