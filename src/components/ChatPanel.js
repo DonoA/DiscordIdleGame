@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 const MessageList = () => {
   const selectedChannelId = useSelector(state => state.ui.selectedChannel);
-  const messages = useSelector(state => state.messages.byChannel[selectedChannelId] || []);
+  const messages = useSelector(state => state.messages.byChannel[selectedChannelId]?.messages || []);
   return (
     <div className="message-list">
       {messages.map(message => (
@@ -16,13 +16,6 @@ const MessageList = () => {
   );
 };
 
-const MessageInput = () => {
-  return (
-    <div className="message-input">
-      <input type="text" placeholder="Message..." disabled />
-    </div>
-  );
-};
 
 const ChatPanel = () => {
   const selectedChannelId = useSelector(state => state.ui.selectedChannel);
@@ -38,7 +31,6 @@ const ChatPanel = () => {
         <h3># {channel.name}</h3>
       </div>
       <MessageList />
-      <MessageInput />
     </div>
   );
 };

@@ -32,7 +32,7 @@ const ChannelList = () => {
             className={`channel ${channel.id === selectedChannelId ? 'active' : ''}`}
             onClick={() => dispatch(selectChannel(channel.id))}
           >
-            # {channel.name} ({messages[channel.id] ? messages[channel.id].length : 0})
+            # {channel.name} ({messages[channel.id] ? messages[channel.id].totalCount : 0})
           </div>
         ))}
       </div>
