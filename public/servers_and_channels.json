@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Nexus Gamers",
+    "channels": [
+      { "name": "general-chat", "type": "text" },
+      { "name": "looking-for-group", "type": "text" },
+      { "name": "memes", "type": "text" },
+      { "name": "game-updates", "type": "text" },
+      { "name": "screenshots", "type": "text" },
+      { "name": "Squad A", "type": "voice" },
+      { "name": "Duo B", "type": "voice" },
+      { "name": "AFK", "type": "voice" },
+      { "name": "Competitive Lobby", "type": "voice" },
+      { "name": "Casual Corner", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Code Wizards",
+    "channels": [
+      { "name": "javascript-help", "type": "text" },
+      { "name": "python-projects", "type": "text" },
+      { "name": "career-advice", "type": "text" },
+      { "name": "code-review", "type": "text" },
+      { "name": "dev-humor", "type": "text" },
+      { "name": "Pair Programming 1", "type": "voice" },
+      { "name": "Live Coding", "type": "voice" },
+      { "name": "Study Group", "type": "voice" },
+      { "name": "Mentorship", "type": "voice" },
+      { "name": "Coffee Break", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Beat Makers",
+    "channels": [
+      { "name": "feedback-lounge", "type": "text" },
+      { "name": "sample-pack-share", "type": "text" },
+      { "name": "daw-tips", "type": "text" },
+      { "name": "new-releases", "type": "text" },
+      { "name": "collab-search", "type": "text" },
+      { "name": "Listening Party", "type": "voice" },
+      { "name": "Production Session", "type": "voice" },
+      { "name": "Mixing & Mastering", "type": "voice" },
+      { "name": "Synth Playground", "type": "voice" },
+      { "name": "Chill Beats Room", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Art & Design",
+    "channels": [
+      { "name": "show-your-work", "type": "text" },
+      { "name": "critique-corner", "type": "text" },
+      { "name": "inspiration-feed", "type": "text" },
+      { "name": "resources-and-tools", "type": "text" },
+      { "name": "daily-prompts", "type": "text" },
+      { "name": "Sketching Together", "type": "voice" },
+      { "name": "Design Review", "type": "voice" },
+      { "name": "Art History", "type": "voice" },
+      { "name": "Freelance Talk", "type": "voice" },
+      { "name": "Creative Block", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Cinephiles Club",
+    "channels": [
+      { "name": "movie-discussion", "type": "text" },
+      { "name": "tv-show-buzz", "type": "text" },
+      { "name": "recommendations", "type": "text" },
+      { "name": "spoilers-beware", "type": "text" },
+      { "name": "film-theory", "type": "text" },
+      { "name": "Movie Night", "type": "voice" },
+      { "name": "Watch Party", "type": "voice" },
+      { "name": "Post-Movie Debrief", "type": "voice" },
+      { "name": "Casting Couch", "type": "voice" },
+      { "name": "Trailer Reactions", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Fitness & Health",
+    "channels": [
+      { "name": "workout-plans", "type": "text" },
+      { "name": "nutrition-talk", "type": "text" },
+      { "name": "progress-pics", "type": "text" },
+      { "name": "healthy-recipes", "type": "text" },
+      { "name": "motivation", "type": "text" },
+      { "name": "Workout Cooldown", "type": "voice" },
+      { "name": "Yoga Session", "type": "voice" },
+      { "name": "Q&A with Trainers", "type": "voice" },
+      { "name": "Meditation Zone", "type": "voice" },
+      { "name": "Check-in", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Book Nook",
+    "channels": [
+      { "name": "current-reads", "type": "text" },
+      { "name": "book-of-the-month", "type": "text" },
+      { "name": "writing-workshop", "type": "text" },
+      { "name": "favorite-authors", "type": "text" },
+      { "name": "character-analysis", "type": "text" },
+      { "name": "Read Aloud", "type": "voice" },
+      { "name": "Book Club Meeting", "type": "voice" },
+      { "name": "Author AMA", "type": "voice" },
+      { "name": "Spoiler Room", "type": "voice" },
+      { "name": "Silent Reading", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Travel Hub",
+    "channels": [
+      { "name": "destinations", "type": "text" },
+      { "name": "travel-tips", "type": "text" },
+      { "name": "photo-gallery", "type": "text" },
+      { "name": "budget-hacks", "type": "text" },
+      { "name": "local-eats", "type": "text" },
+      { "name": "Trip Planning", "type": "voice" },
+      { "name": "Story Swap", "type": "voice" },
+      { "name": "Language Exchange", "type": "voice" },
+      { "name": "Virtual Tour", "type": "voice" },
+      { "name": "Hangout", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Science & Space",
+    "channels": [
+      { "name": "latest-discoveries", "type": "text" },
+      { "name": "ask-a-scientist", "type": "text" },
+      { "name": "astrophotography", "type": "text" },
+      { "name": "sci-fi-corner", "type": "text" },
+      { "name": "learning-resources", "type": "text" },
+      { "name": "Stargazing", "type": "voice" },
+      { "name": "Documentary Night", "type": "voice" },
+      { "name": "Debate Club", "type": "voice" },
+      { "name": "Lab Chat", "type": "voice" },
+      { "name": "Cosmic Coffee", "type": "voice" }
+    ]
+  },
+  {
+    "name": "Pet Paradise",
+    "channels": [
+      { "name": "dog-pics", "type": "text" },
+      { "name": "cat-antics", "type": "text" },
+      { "name": "training-advice", "type": "text" },
+      { "name": "pet-health", "type": "text" },
+      { "name": "cute-videos", "type": "text" },
+      { "name": "Virtual Pet Park", "type": "voice" },
+      { "name": "Training Tips Live", "type": "voice" },
+      { "name": "Grooming Gab", "type": "voice" },
+      { "name": "Memorial", "type": "voice" },
+      { "name": "Relaxing with Pets", "type": "voice" }
+    ]
+  }
+]

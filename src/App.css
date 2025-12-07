@@ -61,6 +61,26 @@
   color: #ffffff;
 }
 
+.channel-voice {
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #96989d;
+}
+
+.channel-name {
+  margin-bottom: 4px;
+}
+
+.channel-users {
+  padding-left: 16px;
+}
+
+.user-in-voice {
+  font-size: 12px;
+  color: #b9bbbe;
+}
+
 .chat-panel {
   flex-grow: 1;
   background-color: #36393f;

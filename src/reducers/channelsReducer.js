@@ -1,4 +1,4 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE } from '../actions/types';
 
 const initialState = {
   byId: {},
@@ -23,6 +23,34 @@ const channelsReducer = (state = initialState, action) => {
         },
         allIds: [...state.allIds, channel.id],
       };
+    case USER_JOIN_VOICE: {
+      const { userId, channelId } = action.payload;
+      const channel = state.byId[channelId];
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [channelId]: {
+            ...channel,
+            users: [...channel.users, userId],
+          },
+        },
+      };
+    }
+    case USER_LEAVE_VOICE: {
+      const { userId, channelId } = action.payload;
+      const channel = state.byId[channelId];
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [channelId]: {
+            ...channel,
+            users: channel.users.filter(id => id !== userId),
+          },
+        },
+      };
+    }
     default:
       return state;
   }

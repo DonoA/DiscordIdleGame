@@ -6,3 +6,5 @@ export const ADD_RANDOM_CHANNEL = 'ADD_RANDOM_CHANNEL';
 export const ADD_RANDOM_MESSAGE = 'ADD_RANDOM_MESSAGE';
 
 export const ADD_USER = 'ADD_USER';
+export const USER_JOIN_VOICE = 'USER_JOIN_VOICE';
+export const USER_LEAVE_VOICE = 'USER_LEAVE_VOICE';

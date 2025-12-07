@@ -10,6 +10,7 @@ const ChannelList = () => {
     return server.channels.map(id => state.channels.byId[id]);
   });
   const messages = useSelector(state => state.messages.byChannel);
+  const users = useSelector(state => state.users.byId);
   const selectedChannelId = useSelector(state => state.ui.selectedChannel);
   const dispatch = useDispatch();
 
@@ -39,9 +40,16 @@ const ChannelList = () => {
       <div className="channel-category">
         <h4>Voice Channels</h4>
         {voiceChannels.map(channel => (
-          <div key={channel.id} className="channel">
-            &#128266; {channel.name}
-          </div>
+          <div key={channel.id} className="channel-voice">
+           <div className="channel-name">&#128266; {channel.name}</div>
+           <div className="channel-users">
+             {channel.users.map(userId => (
+               <div key={userId} className="user-in-voice">
+                 {users[userId]?.name}
+               </div>
+             ))}
+           </div>
+         </div>
         ))}
       </div>
     </div>
