@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectChannel } from '../actions';
+import { formatNumber } from '../utils/formatting';
 
 const ChannelList = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const ChannelList = () => {
 
   return (
     <div className="channel-list">
-      <div className="bit-counter">Bits: {bits}</div>
+      <div className="bit-counter">Bits: {formatNumber(bits)}</div>
       <h2>{server.name}</h2>
       <div>Users: {users.length}</div>
       <div className="channel-category">
@@ -30,7 +31,7 @@ const ChannelList = () => {
             className={`channel ${channel.name === selectedChannelName ? 'active' : ''}`}
             onClick={() => dispatch(selectChannel(channel.name))}
           >
-            # {channel.name} ({channel.messageCount})
+            # {channel.name} ({formatNumber(channel.messageCount)})
           </div>
         ))}
       </div>

@@ -1,19 +1,28 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { loadInitialData } from './actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadInitialData, incrementTick } from './actions';
+import { runSimulation } from './simulation';
 import ServerList from './components/ServerList';
 import ChannelList from './components/ChannelList';
 import ChatPanel from './components/ChatPanel';
 import ControlPanel from './components/ControlPanel';
 import './App.css';
 
-function App() {
+function App({ store }) {
   const dispatch = useDispatch();
+  const tick = useSelector(state => state.ui.tick);
 
   useEffect(() => {
     dispatch(loadInitialData());
+    const tickInterval = setInterval(() => {
+      dispatch(incrementTick());
+    }, 1000 / 30); // 30 FPS
+    return () => clearInterval(tickInterval);
   }, [dispatch]);
 
+  useEffect(() => {
+    runSimulation(store, tick);
+  }, [store, tick]);
 
   return (
     <div className="app">

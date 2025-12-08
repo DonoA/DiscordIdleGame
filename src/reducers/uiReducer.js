@@ -1,9 +1,10 @@
-import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA, TOGGLE_DEV_MODE } from '../actions/types';
+import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA, TOGGLE_DEV_MODE, INCREMENT_TICK } from '../actions/types';
 
 const initialState = {
   selectedServer: null,
   selectedChannel: null,
-  devMode: false,
+  devMode: true,
+  tick: 0,
 };
 
 const uiReducer = (state = initialState, action) => {
@@ -29,6 +30,11 @@ const uiReducer = (state = initialState, action) => {
       return {
         ...state,
         devMode: !state.devMode,
+      };
+    case INCREMENT_TICK:
+      return {
+        ...state,
+        tick: state.tick + 1,
       };
     default:
       return state;

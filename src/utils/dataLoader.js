@@ -1,6 +1,7 @@
+import { getData } from './dataCache';
+
 export const loadInitialData = async () => {
-  const serversRes = await fetch('/servers_and_channels.json');
-  const serversData = await serversRes.json();
+  const { servers: serversData } = await getData();
 
   const servers = {};
   const users = { usersByServer: {} };

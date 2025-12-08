@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addServer, addTextChannel, addVoiceChannel, addUser, toggleDevMode } from '../actions';
+import { formatNumber } from '../utils/formatting';
+import { getData } from '../utils/dataCache';
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
@@ -11,12 +13,9 @@ const ControlPanel = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const serversRes = await fetch('/servers_and_channels.json');
-      const serversData = await serversRes.json();
-      setServerThemes(serversData);
-      const usersRes = await fetch('/users.json');
-      const usersData = await usersRes.json();
-      setUserNames(usersData);
+      const { servers, users } = await getData();
+      setServerThemes(servers);
+      setUserNames(users);
     };
     fetchData();
   }, []);
@@ -102,31 +101,31 @@ const ControlPanel = () => {
         </label>
       </div>
       <div>
-        <span>Bits: {Math.floor(bits)}</span>
+        <span>Bits: {formatNumber(Math.floor(bits))}</span>
       </div>
       <div>
-        <span>Add Server (Cost: {serverCost})</span>
-        <button onClick={() => handleAddServer(1)} disabled={!devMode && bits < serverCost}>Buy</button>
-        <button onClick={() => handleAddServer(10)} disabled={!devMode && bits < serverCost * 10}>Buy 10</button>
-        <button onClick={() => handleAddServer(100)} disabled={!devMode && bits < serverCost * 100}>Buy 100</button>
+        <span>Add Server (Cost: {formatNumber(serverCost)})</span>
+        <button onClick={() => handleAddServer(1)} disabled={!devMode && bits < serverCost}>+1</button>
+        <button onClick={() => handleAddServer(10)} disabled={!devMode && bits < serverCost * 10}>+10</button>
+        <button onClick={() => handleAddServer(100)} disabled={!devMode && bits < serverCost * 100}>+100</button>
       </div>
       <div>
-        <span>Add Text Channel (Cost: {channelCost})</span>
-        <button onClick={() => handleAddTextChannel(1)} disabled={!selectedServer || (!devMode && bits < channelCost)}>Buy</button>
-        <button onClick={() => handleAddTextChannel(10)} disabled={!selectedServer || (!devMode && bits < channelCost * 10)}>Buy 10</button>
-        <button onClick={() => handleAddTextChannel(100)} disabled={!selectedServer || (!devMode && bits < channelCost * 100)}>Buy 100</button>
+        <span>Add Text Channel (Cost: {formatNumber(channelCost)})</span>
+        <button onClick={() => handleAddTextChannel(1)} disabled={!selectedServer || (!devMode && bits < channelCost)}>+1</button>
+        <button onClick={() => handleAddTextChannel(10)} disabled={!selectedServer || (!devMode && bits < channelCost * 10)}>+10</button>
+        <button onClick={() => handleAddTextChannel(100)} disabled={!selectedServer || (!devMode && bits < channelCost * 100)}>+100</button>
       </div>
       <div>
-        <span>Add Voice Channel (Cost: {channelCost})</span>
-        <button onClick={() => handleAddVoiceChannel(1)} disabled={!selectedServer || (!devMode && bits < channelCost)}>Buy</button>
-        <button onClick={() => handleAddVoiceChannel(10)} disabled={!selectedServer || (!devMode && bits < channelCost * 10)}>Buy 10</button>
-        <button onClick={() => handleAddVoiceChannel(100)} disabled={!selectedServer || (!devMode && bits < channelCost * 100)}>Buy 100</button>
+        <span>Add Voice Channel (Cost: {formatNumber(channelCost)})</span>
+        <button onClick={() => handleAddVoiceChannel(1)} disabled={!selectedServer || (!devMode && bits < channelCost)}>+1</button>
+        <button onClick={() => handleAddVoiceChannel(10)} disabled={!selectedServer || (!devMode && bits < channelCost * 10)}>+10</button>
+        <button onClick={() => handleAddVoiceChannel(100)} disabled={!selectedServer || (!devMode && bits < channelCost * 100)}>+100</button>
       </div>
       <div>
-        <span>Add User (Cost: {userCost})</span>
-        <button onClick={() => handleAddUser(1)} disabled={!selectedServer || (!devMode && bits < userCost)}>Buy</button>
-        <button onClick={() => handleAddUser(10)} disabled={!selectedServer || (!devMode && bits < userCost * 10)}>Buy 10</button>
-        <button onClick={() => handleAddUser(100)} disabled={!selectedServer || (!devMode && bits < userCost * 100)}>Buy 100</button>
+        <span>Add User (Cost: {formatNumber(userCost)})</span>
+        <button onClick={() => handleAddUser(1)} disabled={!selectedServer || (!devMode && bits < userCost)}>+1</button>
+        <button onClick={() => handleAddUser(10)} disabled={!selectedServer || (!devMode && bits < userCost * 10)}>+10</button>
+        <button onClick={() => handleAddUser(100)} disabled={!selectedServer || (!devMode && bits < userCost * 100)}>+100</button>
       </div>
     </div>
   );

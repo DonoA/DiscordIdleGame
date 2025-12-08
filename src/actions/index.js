@@ -1,10 +1,9 @@
+import { getData } from '../utils/dataCache';
 import { loadInitialData as fetchData } from '../utils/dataLoader';
 import {
   SELECT_SERVER,
   SELECT_CHANNEL,
   LOAD_INITIAL_DATA,
-  ADD_RANDOM_SERVER,
-  ADD_RANDOM_CHANNEL,
   ADD_RANDOM_MESSAGE,
   ADD_USER,
   USER_JOIN_VOICE,
@@ -15,6 +14,7 @@ import {
   ADD_SERVER,
   ADD_TEXT_CHANNEL,
   ADD_VOICE_CHANNEL,
+  INCREMENT_TICK,
 } from './types';
 
 export const selectServer = (serverName) => ({
@@ -98,8 +98,7 @@ export const addRandomMessage = (serverName, channelName, userName) => async (di
   const serverUsers = users.usersByServer[serverName];
 
   if (serverUsers) {
-    const messagesRes = await fetch('/messages.json');
-    const messageList = await messagesRes.json();
+    const { messages: messageList } = await getData();
 
     const message = {
       author: userName,
@@ -143,3 +142,8 @@ export const spendBits = (amount) => ({
 export const toggleDevMode = () => ({
   type: TOGGLE_DEV_MODE,
 });
+
+export const incrementTick = () => ({
+  type: INCREMENT_TICK,
+});
+
