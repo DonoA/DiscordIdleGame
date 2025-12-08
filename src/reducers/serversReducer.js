@@ -5,7 +5,10 @@ const initialState = {};
 const serversReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
-      return action.payload.servers;
+      return {
+        ...state,
+        ...action.payload.servers
+      };
     case ADD_RANDOM_SERVER:
     case ADD_SERVER: {
       const { server } = action.payload;

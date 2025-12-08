@@ -1,7 +1,6 @@
 import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits } from './actions';
 
 const MESSAGE_CHANCE_PER_TICK = 0.01;
-const USER_MOVE_CHANCE_PER_TICK = 0.005;
 const BITS_PER_TICK_PER_USER_IN_VOICE = 0.1;
 
 export const runSimulation = (store, tick) => {
@@ -13,17 +12,28 @@ export const runSimulation = (store, tick) => {
 
   // --- User Movement Simulation ---
   serverNames.forEach(serverName => {
-    const serverUsers = users.usersByServer[serverName];
-    const voiceChannels = channels.voiceByServer[serverName];
-    if (serverUsers && serverUsers.length > 0 && voiceChannels && Object.keys(voiceChannels).length > 0) {
-      serverUsers.forEach(userName => {
-        if (Math.random() < USER_MOVE_CHANCE_PER_TICK) {
-          const currentlyInChannel = Object.values(voiceChannels).find(vc => vc.users.includes(userName));
-          if (currentlyInChannel) {
-            store.dispatch(userLeaveVoice(serverName, currentlyInChannel.name, userName));
-          } else {
-            const randomChannelName = Object.keys(voiceChannels)[Math.floor(Math.random() * Object.keys(voiceChannels).length)];
-            store.dispatch(userJoinVoice(serverName, randomChannelName, userName));
+    const serverUsers = users.usersByServer[serverName] || [];
+    const usersInVoice = users.usersInVoiceByServer[serverName] || {};
+    const voiceChannels = channels.voiceByServer[serverName] || {};
+    const voiceChannelNames = Object.keys(voiceChannels);
+
+    if (serverUsers.length > 0 && voiceChannelNames.length > 0) {
+      voiceChannelNames.forEach(channelName => {
+        const channel = voiceChannels[channelName];
+
+        // Leave Logic
+        const usersToLeave = channel.users.filter(() => Math.random() < 0.1);
+        usersToLeave.forEach(userName => {
+          store.dispatch(userLeaveVoice(serverName, channelName, userName));
+        });
+
+        // Join Logic
+        const availableUsers = serverUsers.filter(u => !usersInVoice[u]);
+        const numToJoin = Math.floor(availableUsers.length * 0.05);
+        for (let i = 0; i < numToJoin; i++) {
+          const userToJoin = availableUsers.splice(Math.floor(Math.random() * availableUsers.length), 1)[0];
+          if(userToJoin) {
+            store.dispatch(userJoinVoice(serverName, channelName, userToJoin));
           }
         }
       });

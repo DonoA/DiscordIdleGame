@@ -7,7 +7,10 @@ const initialState = {
 const messagesReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
-      return action.payload.messages;
+      return {
+        ...state,
+        ...action.payload.messages,
+      };
     case ADD_RANDOM_MESSAGE: {
       const { serverName, channelName, message } = action.payload;
       const serverMessages = state.byServer[serverName] || {};

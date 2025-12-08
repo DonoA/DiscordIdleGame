@@ -8,7 +8,10 @@ const initialState = {
 const channelsReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
-      return action.payload.channels;
+      return {
+        ...state,
+        ...action.payload.channels
+      };
     case ADD_RANDOM_CHANNEL:
     case ADD_TEXT_CHANNEL:
     case ADD_VOICE_CHANNEL:

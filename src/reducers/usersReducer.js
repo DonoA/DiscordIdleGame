@@ -1,13 +1,17 @@
-import { LOAD_INITIAL_DATA, ADD_USER } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_USER, USER_JOIN_VOICE, USER_LEAVE_VOICE } from '../actions/types';
 
 const initialState = {
   usersByServer: {},
+  usersInVoiceByServer: {},
 };
 
 const usersReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
-      return action.payload.users;
+      return {
+        ...state,
+        ...action.payload.users
+      };
     case ADD_USER: {
       const { serverName, userName } = action.payload;
       const serverUsers = state.usersByServer[serverName] || [];
@@ -16,6 +20,32 @@ const usersReducer = (state = initialState, action) => {
         usersByServer: {
           ...state.usersByServer,
           [serverName]: [...serverUsers, userName],
+        },
+      };
+    }
+    case USER_JOIN_VOICE: {
+      const { serverName, userName } = action.payload;
+      const serverUsersInVoice = state.usersInVoiceByServer[serverName] || {};
+      return {
+        ...state,
+        usersInVoiceByServer: {
+          ...state.usersInVoiceByServer,
+          [serverName]: {
+            ...serverUsersInVoice,
+            [userName]: true,
+          },
+        },
+      };
+    }
+    case USER_LEAVE_VOICE: {
+      const { serverName, userName } = action.payload;
+      const serverUsersInVoice = { ...(state.usersInVoiceByServer[serverName] || {}) };
+      delete serverUsersInVoice[userName];
+      return {
+        ...state,
+        usersInVoiceByServer: {
+          ...state.usersInVoiceByServer,
+          [serverName]: serverUsersInVoice,
         },
       };
     }
