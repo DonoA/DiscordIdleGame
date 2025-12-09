@@ -17,17 +17,17 @@ import {
   INCREMENT_TICK,
 } from './types';
 
-export const selectServer = (serverName) => ({
+export const selectServer = (serverName: string) => ({
   type: SELECT_SERVER,
   payload: serverName,
 });
 
-export const selectChannel = (channelName) => ({
+export const selectChannel = (channelName: string) => ({
   type: SELECT_CHANNEL,
   payload: channelName,
 });
 
-export const loadInitialData = () => async (dispatch) => {
+export const loadInitialData = () => async (dispatch: any) => {
   console.log('Loading initial server data:', new Error().stack);
   const data = await fetchData();
   dispatch({
@@ -36,38 +36,38 @@ export const loadInitialData = () => async (dispatch) => {
   });
 };
 
-export const addServer = (serverName) => (dispatch, getState) => {
+export const addServer = (serverName: string) => (dispatch: any, getState: any) => {
   dispatch({
     type: ADD_SERVER,
     payload: { server: { name: serverName } },
   });
 };
 
-export const addTextChannel = (serverName, channelName) => (dispatch, getState) => {
+export const addTextChannel = (serverName: string, channelName: string) => (dispatch: any, getState: any) => {
   dispatch({
     type: ADD_TEXT_CHANNEL,
     payload: { serverName, channel: { name: channelName, type: 'text', messageCount: 0 } },
   });
 };
 
-export const addVoiceChannel = (serverName, channelName) => (dispatch, getState) => {
+export const addVoiceChannel = (serverName: string, channelName: string) => (dispatch: any, getState: any) => {
   dispatch({
     type: ADD_VOICE_CHANNEL,
     payload: { serverName, channel: { name: channelName, type: 'voice', users: [] } },
   });
 };
 
-export const userJoinVoice = (serverName, channelName, userNames) => ({
+export const userJoinVoice = (serverName: string, channelName: string, userNames: string[]) => ({
   type: USER_JOIN_VOICE,
   payload: { serverName, channelName, userNames },
 });
 
-export const userLeaveVoice = (serverName, channelName, userNames) => ({
+export const userLeaveVoice = (serverName: string, channelName: string, userNames: string[]) => ({
   type: USER_LEAVE_VOICE,
   payload: { serverName, channelName, userNames },
 });
 
-export const addRandomMessage = (serverName, channelName, userName) => async (dispatch, getState) => {
+export const addRandomMessage = (serverName: string, channelName: string, userName: string) => async (dispatch: any, getState: any) => {
   const { users } = getState();
   const serverUsers = users.usersByServer[serverName];
 
@@ -87,19 +87,19 @@ export const addRandomMessage = (serverName, channelName, userName) => async (di
   }
 };
 
-export const addUser = (serverName, userName) => (dispatch, getState) => {
+export const addUser = (serverName: string, userName: string) => (dispatch: any, getState: any) => {
   dispatch({
     type: ADD_USER,
     payload: { serverName, userName },
   });
 };
 
-export const incrementBits = (amount) => ({
+export const incrementBits = (amount: number) => ({
   type: INCREMENT_BITS,
   payload: amount,
 });
 
-export const spendBits = (amount) => ({
+export const spendBits = (amount: number) => ({
   type: SPEND_BITS,
   payload: amount,
 });

@@ -4,7 +4,7 @@ const initialState = {
   byServer: {},
 };
 
-const messagesReducer = (state = initialState, action) => {
+const messagesReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {
@@ -13,7 +13,7 @@ const messagesReducer = (state = initialState, action) => {
       };
     case ADD_RANDOM_MESSAGE: {
       const { serverName, channelName, message } = action.payload;
-      const serverMessages = state.byServer[serverName] || {};
+      const serverMessages = (state as any).byServer[serverName] || {};
       const channelMessages = serverMessages[channelName] || [];
       const newMessages = [...channelMessages, message].slice(-15); // Keep last 15
       return {

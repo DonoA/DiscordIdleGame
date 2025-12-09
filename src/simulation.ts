@@ -5,7 +5,7 @@ const BITS_PER_TICK_PER_USER_IN_VOICE = 0.1;
 const LEAVE_CHANNEL_CHANCE_PER_TICK = 0.1;
 const JOIN_CHANNEL_CHANCE_PER_TICK = 0.05;
 
-export const runSimulation = (store, tick) => {
+export const runSimulation = (store: any, tick: any) => {
   const state = store.getState();
   const { users, servers, channels } = state;
   const serverNames = Object.keys(servers);
@@ -30,7 +30,7 @@ export const runSimulation = (store, tick) => {
         }
 
         // Join Logic
-        const availableUsers = serverUsers.filter(u => !usersInVoice[u]);
+        const availableUsers = serverUsers.filter((u: any) => !usersInVoice[u]);
         const numToJoin = Math.floor(availableUsers.length * JOIN_CHANNEL_CHANCE_PER_TICK);
         const usersToJoin = [];
         for (let i = 0; i < numToJoin; i++) {
@@ -51,10 +51,10 @@ export const runSimulation = (store, tick) => {
     const serverUsers = users.usersByServer[serverName];
     const textChannels = channels.textByServer[serverName];
     if (serverUsers && serverUsers.length > 0 && textChannels && Object.keys(textChannels).length > 0) {
-      serverUsers.forEach(userName => {
+      serverUsers.forEach((userName: any) => {
         if (Math.random() < MESSAGE_CHANCE_PER_TICK) {
           const channelName = Object.keys(textChannels)[Math.floor(Math.random() * Object.keys(textChannels).length)];
-          store.dispatch(addRandomMessage(serverName, channelName, userName));
+          (store.dispatch as any)(addRandomMessage(serverName, channelName, userName));
         }
       });
     }
@@ -66,7 +66,7 @@ export const runSimulation = (store, tick) => {
   serverNames.forEach(serverName => {
     const voiceChannels = channels.voiceByServer[serverName];
     if (voiceChannels) {
-      Object.values(voiceChannels).forEach(vc => {
+      Object.values(voiceChannels).forEach((vc: any) => {
         usersInVoice += vc.users.length;
       });
     }

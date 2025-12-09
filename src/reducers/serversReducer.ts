@@ -2,7 +2,7 @@ import { LOAD_INITIAL_DATA, ADD_RANDOM_SERVER, ADD_SERVER } from '../actions/typ
 
 const initialState = {};
 
-const serversReducer = (state = initialState, action) => {
+const serversReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {

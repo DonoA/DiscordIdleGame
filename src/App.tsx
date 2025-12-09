@@ -8,14 +8,14 @@ import ChatPanel from './components/ChatPanel';
 import ControlPanel from './components/ControlPanel';
 import './App.css';
 
-function App({ store }) {
+function App({ store }: { store: any }) {
   const dispatch = useDispatch();
-  const tick = useSelector(state => state.ui.tick);
+  const tick = useSelector((state: any) => state.ui.tick);
 
   useEffect(() => {
     console.log('Dispatching loadInitialData from App component');
-    dispatch(loadInitialData());
-  }, []);
+    (dispatch as any)(loadInitialData());
+  }, [dispatch]);
 
   useEffect(() => {
     const tickInterval = setInterval(() => {

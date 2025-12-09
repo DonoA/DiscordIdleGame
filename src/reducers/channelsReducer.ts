@@ -5,7 +5,7 @@ const initialState = {
   voiceByServer: {},
 };
 
-const channelsReducer = (state = initialState, action) => {
+const channelsReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {
@@ -18,7 +18,7 @@ const channelsReducer = (state = initialState, action) => {
     {
       const { serverName, channel } = action.payload;
       const { type, name } = channel;
-      const serverChannels = type === 'text' ? state.textByServer[serverName] : state.voiceByServer[serverName];
+      const serverChannels = type === 'text' ? (state as any).textByServer[serverName] : (state as any).voiceByServer[serverName];
       const updatedChannels = { ...serverChannels, [name]: channel };
 
       if (type === 'text') {
@@ -29,7 +29,7 @@ const channelsReducer = (state = initialState, action) => {
     }
     case USER_JOIN_VOICE: {
       const { serverName, channelName, userNames } = action.payload;
-      const voiceChannels = state.voiceByServer[serverName];
+      const voiceChannels = (state as any).voiceByServer[serverName];
       const channel = voiceChannels[channelName];
       const updatedChannel = { ...channel, users: [...channel.users, ...userNames] };
       return {
@@ -42,10 +42,10 @@ const channelsReducer = (state = initialState, action) => {
     }
     case USER_LEAVE_VOICE: {
       const { serverName, channelName, userNames } = action.payload;
-      const voiceChannels = state.voiceByServer[serverName];
+      const voiceChannels = (state as any).voiceByServer[serverName];
       const channel = voiceChannels[channelName];
       const usersToLeaveSet = new Set(userNames);
-      const updatedChannel = { ...channel, users: channel.users.filter(u => !usersToLeaveSet.has(u)) };
+      const updatedChannel = { ...channel, users: channel.users.filter((u: any) => !usersToLeaveSet.has(u)) };
       return {
         ...state,
         voiceByServer: {
@@ -56,7 +56,7 @@ const channelsReducer = (state = initialState, action) => {
     }
     case ADD_RANDOM_MESSAGE: {
       const { serverName, channelName } = action.payload;
-      const textChannels = state.textByServer[serverName];
+      const textChannels = (state as any).textByServer[serverName];
       const channel = textChannels[channelName];
       const updatedChannel = { ...channel, messageCount: channel.messageCount + 1 };
       return {

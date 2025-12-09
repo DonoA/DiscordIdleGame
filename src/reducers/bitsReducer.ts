@@ -5,7 +5,7 @@ const initialState = {
   currentBits: 0,
 };
 
-const bitsReducer = (state = initialState, action) => {
+const bitsReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case INCREMENT_BITS:
       return {

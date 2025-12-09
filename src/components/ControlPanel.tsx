@@ -21,7 +21,7 @@ const USER_COST = {
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
-  const { servers, channels, users, bits, ui } = useSelector(state => state);
+  const { servers, channels, users, bits, ui } = useSelector((state: any) => state);
   const { selectedServer, selectedChannel, devMode } = ui;
   const { currentBits, totalBits } = bits;
   const [serverThemes, setServerThemes] = useState([]);
@@ -46,7 +46,7 @@ const ControlPanel = () => {
     const numUsers = (users.usersByServer[selectedServer] || []).length + num - 1
     return Math.floor(USER_COST.base * (USER_COST.growth ** numUsers));
   }
-  const getChannelCost = (type, num = 1) => {
+  const getChannelCost = (type: string, num = 1) => {
     if (!selectedServer) return 0;
     const numChannels = type === 'text'
       ? Object.keys(channels.textByServer[selectedServer] || {}).length
@@ -59,7 +59,7 @@ const ControlPanel = () => {
   const voiceChannelCost = getChannelCost('voice');
   const userCost = getUserCost();
 
-  const getUniqueName = (baseName, existingNames) => {
+  const getUniqueName = (baseName: string, existingNames: string[]) => {
     if (!existingNames.includes(baseName)) {
       return baseName;
     }
@@ -72,16 +72,16 @@ const ControlPanel = () => {
 
   const handleAddMessage = () => {
     if (selectedServer && selectedChannel) {
-      dispatch(addRandomMessage(selectedServer, selectedChannel, 'admin'));
+      (dispatch as any)(addRandomMessage(selectedServer, selectedChannel, 'admin'));
     } else {
       alert('Please select a server and channel first.');
     }
   };
 
-  const addRandomChannels = (count, type) => {
-    const serverTheme = serverThemes.find(s => s.name === selectedServer);
+  const addRandomChannels = (count: number, type: string) => {
+    const serverTheme: any = serverThemes.find((s: any) => s.name === selectedServer);
     if (serverTheme) {
-      const possibleChannels = serverTheme.channels.filter(c => c.type === type);
+      const possibleChannels = serverTheme.channels.filter((c: any) => c.type === type);
       const existingChannelNames = Object.keys(channels.textByServer[selectedServer] || {});
       let cost = 0;
       for (let i = 0; i < count; i++) {
@@ -99,9 +99,9 @@ const ControlPanel = () => {
         const randomChannelName = possibleChannels[Math.floor(Math.random() * possibleChannels.length)].name;
         const channelName = getUniqueName(randomChannelName, existingChannelNames);
         if (type === 'voice') {
-          dispatch(addVoiceChannel(selectedServer, channelName));
+          (dispatch as any)(addVoiceChannel(selectedServer, channelName));
         } else if (type === 'text') {
-          dispatch(addTextChannel(selectedServer, channelName));
+          (dispatch as any)(addTextChannel(selectedServer, channelName));
         } else {
           console.error('Unknown channel type', type);
         }
@@ -110,7 +110,7 @@ const ControlPanel = () => {
     }
   }
 
-  const handleAddServer = (count) => {
+  const handleAddServer = (count: number) => {
     const existingServerNames = Object.keys(servers);
     let cost = 0;
     for (let i = 0; i < count; i++) {
@@ -125,13 +125,13 @@ const ControlPanel = () => {
     }
 
     for (let i = 0; i < count; i++) {
-      const randomServer = serverThemes[Math.floor(Math.random() * serverThemes.length)];
+      const randomServer: any = serverThemes[Math.floor(Math.random() * serverThemes.length)];
       const allowedName = getUniqueName(randomServer.name, existingServerNames);
-      dispatch(addServer(allowedName));
+      (dispatch as any)(addServer(allowedName));
     }
   };
 
-  const handleAddTextChannel = (count) => {
+  const handleAddTextChannel = (count: number) => {
     if (selectedServer) {
       addRandomChannels(count, 'text');
     } else {
@@ -139,7 +139,7 @@ const ControlPanel = () => {
     }
   };
 
-  const handleAddVoiceChannel = (count) => {
+  const handleAddVoiceChannel = (count: number) => {
     if (selectedServer) {
       addRandomChannels(count, 'voice');
     } else {
@@ -147,7 +147,7 @@ const ControlPanel = () => {
     }
   };
 
-  const handleAddUser = (count) => {
+  const handleAddUser = (count: number) => {
     if (selectedServer) {
       let cost = 0;
       for (let i = 0; i < count; i++) {
@@ -164,7 +164,7 @@ const ControlPanel = () => {
       for (let i = 0; i < count; i++) {
         const randomUser = userNames[Math.floor(Math.random() * userNames.length)];
         const allowedName = `${randomUser}${Date.now() + i}`; // Ensure uniqueness
-        dispatch(addUser(selectedServer, allowedName));
+        (dispatch as any)(addUser(selectedServer, allowedName));
       }
     } else {
       alert('Please select a server first.');

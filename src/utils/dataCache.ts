@@ -1,4 +1,4 @@
-let cache = null;
+let cache: any = null;
 
 export const getData = async () => {
   if (cache) {

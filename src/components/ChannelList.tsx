@@ -5,14 +5,14 @@ import { formatNumber } from '../utils/formatting';
 
 const ChannelList = () => {
   const dispatch = useDispatch();
-  const { currentBits, totalBits } = useSelector(state => state.bits);
-  const selectedServerName = useSelector(state => state.ui.selectedServer);
-  const selectedChannelName = useSelector(state => state.ui.selectedChannel);
+  const { currentBits, totalBits } = useSelector((state: any) => state.bits);
+  const selectedServerName = useSelector((state: any) => state.ui.selectedServer);
+  const selectedChannelName = useSelector((state: any) => state.ui.selectedChannel);
 
-  const server = useSelector(state => state.servers[selectedServerName]);
-  const users = useSelector(state => state.users.usersByServer[selectedServerName] || []);
-  const textChannels = useSelector(state => Object.values(state.channels.textByServer[selectedServerName] || {}));
-  const voiceChannels = useSelector(state => Object.values(state.channels.voiceByServer[selectedServerName] || {}));
+  const server = useSelector((state: any) => state.servers[selectedServerName]);
+  const users = useSelector((state: any) => state.users.usersByServer[selectedServerName] || []);
+  const textChannels = useSelector((state: any) => Object.values(state.channels.textByServer[selectedServerName] || {}));
+  const voiceChannels = useSelector((state: any) => Object.values(state.channels.voiceByServer[selectedServerName] || {}));
 
   if (!server) {
     return <div className="channel-list"></div>;
@@ -26,7 +26,7 @@ const ChannelList = () => {
       <div>Users: {users.length}</div>
       <div className="channel-category">
         <h4>Text Channels</h4>
-        {textChannels.map(channel => (
+        {textChannels.map((channel: any) => (
           <div
             key={channel.name}
             className={`channel ${channel.name === selectedChannelName ? 'active' : ''}`}
@@ -38,11 +38,11 @@ const ChannelList = () => {
       </div>
       <div className="channel-category">
         <h4>Voice Channels</h4>
-        {voiceChannels.map(channel => (
+        {voiceChannels.map((channel: any) => (
           <div key={channel.name} className="channel-voice">
            <div className="channel-name">&#128266; {channel.name}</div>
            <div className="channel-users">
-             {channel.users.map(userName => (
+             {channel.users.map((userName: any) => (
                <div key={userName} className="user-in-voice">
                  {userName}
                </div>

@@ -7,7 +7,7 @@ const initialState = {
   tick: 0,
 };
 
-const uiReducer = (state = initialState, action) => {
+const uiReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {
