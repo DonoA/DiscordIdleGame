@@ -28,6 +28,7 @@ export const selectChannel = (channelName) => ({
 });
 
 export const loadInitialData = () => async (dispatch) => {
+  console.log('Loading initial server data:', new Error().stack);
   const data = await fetchData();
   dispatch({
     type: LOAD_INITIAL_DATA,
@@ -36,61 +37,34 @@ export const loadInitialData = () => async (dispatch) => {
 };
 
 export const addServer = (serverName) => (dispatch, getState) => {
-  const { servers, bits, ui } = getState();
-  const numServers = Object.keys(servers).length;
-  const cost = 10000 * (1.5 ** numServers);
-
-  if (ui.devMode || bits >= cost) {
-    if (!ui.devMode) {
-      dispatch(spendBits(cost));
-    }
-    dispatch({
-      type: ADD_SERVER,
-      payload: { server: { name: serverName } },
-    });
-  }
+  dispatch({
+    type: ADD_SERVER,
+    payload: { server: { name: serverName } },
+  });
 };
 
 export const addTextChannel = (serverName, channelName) => (dispatch, getState) => {
-  const { channels, bits, ui } = getState();
-  const numChannels = Object.keys(channels.textByServer[serverName] || {}).length + Object.keys(channels.voiceByServer[serverName] || {}).length;
-  const cost = 1000 * (1.2 ** numChannels);
-
-  if (ui.devMode || bits >= cost) {
-    if (!ui.devMode) {
-      dispatch(spendBits(cost));
-    }
-    dispatch({
-      type: ADD_TEXT_CHANNEL,
-      payload: { serverName, channel: { name: channelName, type: 'text', messageCount: 0 } },
-    });
-  }
+  dispatch({
+    type: ADD_TEXT_CHANNEL,
+    payload: { serverName, channel: { name: channelName, type: 'text', messageCount: 0 } },
+  });
 };
 
 export const addVoiceChannel = (serverName, channelName) => (dispatch, getState) => {
-  const { channels, bits, ui } = getState();
-  const numChannels = Object.keys(channels.textByServer[serverName] || {}).length + Object.keys(channels.voiceByServer[serverName] || {}).length;
-  const cost = 1000 * (1.2 ** numChannels);
-
-  if (ui.devMode || bits >= cost) {
-    if (!ui.devMode) {
-      dispatch(spendBits(cost));
-    }
-    dispatch({
-      type: ADD_VOICE_CHANNEL,
-      payload: { serverName, channel: { name: channelName, type: 'voice', users: [] } },
-    });
-  }
+  dispatch({
+    type: ADD_VOICE_CHANNEL,
+    payload: { serverName, channel: { name: channelName, type: 'voice', users: [] } },
+  });
 };
 
-export const userJoinVoice = (serverName, channelName, userName) => ({
+export const userJoinVoice = (serverName, channelName, userNames) => ({
   type: USER_JOIN_VOICE,
-  payload: { serverName, channelName, userName },
+  payload: { serverName, channelName, userNames },
 });
 
-export const userLeaveVoice = (serverName, channelName, userName) => ({
+export const userLeaveVoice = (serverName, channelName, userNames) => ({
   type: USER_LEAVE_VOICE,
-  payload: { serverName, channelName, userName },
+  payload: { serverName, channelName, userNames },
 });
 
 export const addRandomMessage = (serverName, channelName, userName) => async (dispatch, getState) => {
@@ -114,19 +88,10 @@ export const addRandomMessage = (serverName, channelName, userName) => async (di
 };
 
 export const addUser = (serverName, userName) => (dispatch, getState) => {
-  const { users, bits, ui } = getState();
-  const numUsers = (users.usersByServer[serverName] || []).length;
-  const cost = 100 * (1.1 ** numUsers);
-
-  if (ui.devMode || bits >= cost) {
-    if (!ui.devMode) {
-      dispatch(spendBits(cost));
-    }
-    dispatch({
-      type: ADD_USER,
-      payload: { serverName, userName },
-    });
-  }
+  dispatch({
+    type: ADD_USER,
+    payload: { serverName, userName },
+  });
 };
 
 export const incrementBits = (amount) => ({

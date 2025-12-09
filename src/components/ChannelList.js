@@ -5,7 +5,7 @@ import { formatNumber } from '../utils/formatting';
 
 const ChannelList = () => {
   const dispatch = useDispatch();
-  const bits = useSelector(state => state.bits);
+  const { currentBits, totalBits } = useSelector(state => state.bits);
   const selectedServerName = useSelector(state => state.ui.selectedServer);
   const selectedChannelName = useSelector(state => state.ui.selectedChannel);
 
@@ -20,7 +20,8 @@ const ChannelList = () => {
 
   return (
     <div className="channel-list">
-      <div className="bit-counter">Bits: {formatNumber(bits)}</div>
+      <div className="bit-counter">Current Bits: {formatNumber(currentBits)}</div>
+      <div className="bit-counter">Total Bits: {formatNumber(totalBits)}</div>
       <h2>{server.name}</h2>
       <div>Users: {users.length}</div>
       <div className="channel-category">

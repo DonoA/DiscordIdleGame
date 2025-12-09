@@ -2,6 +2,8 @@ import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits } from '
 
 const MESSAGE_CHANCE_PER_TICK = 0.01;
 const BITS_PER_TICK_PER_USER_IN_VOICE = 0.1;
+const LEAVE_CHANNEL_CHANCE_PER_TICK = 0.1;
+const JOIN_CHANNEL_CHANCE_PER_TICK = 0.05;
 
 export const runSimulation = (store, tick) => {
   const state = store.getState();
@@ -22,19 +24,23 @@ export const runSimulation = (store, tick) => {
         const channel = voiceChannels[channelName];
 
         // Leave Logic
-        const usersToLeave = channel.users.filter(() => Math.random() < 0.1);
-        usersToLeave.forEach(userName => {
-          store.dispatch(userLeaveVoice(serverName, channelName, userName));
-        });
+        const usersToLeave = channel.users.filter(() => Math.random() < LEAVE_CHANNEL_CHANCE_PER_TICK);
+        if (usersToLeave.length > 0) {
+          store.dispatch(userLeaveVoice(serverName, channelName, usersToLeave));
+        }
 
         // Join Logic
         const availableUsers = serverUsers.filter(u => !usersInVoice[u]);
-        const numToJoin = Math.floor(availableUsers.length * 0.05);
+        const numToJoin = Math.floor(availableUsers.length * JOIN_CHANNEL_CHANCE_PER_TICK);
+        const usersToJoin = [];
         for (let i = 0; i < numToJoin; i++) {
           const userToJoin = availableUsers.splice(Math.floor(Math.random() * availableUsers.length), 1)[0];
           if(userToJoin) {
-            store.dispatch(userJoinVoice(serverName, channelName, userToJoin));
+            usersToJoin.push(userToJoin);
           }
+        }
+        if (usersToJoin.length > 0) {
+          store.dispatch(userJoinVoice(serverName, channelName, usersToJoin));
         }
       });
     }

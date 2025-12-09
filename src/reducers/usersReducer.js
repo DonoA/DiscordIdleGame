@@ -24,23 +24,25 @@ const usersReducer = (state = initialState, action) => {
       };
     }
     case USER_JOIN_VOICE: {
-      const { serverName, userName } = action.payload;
-      const serverUsersInVoice = state.usersInVoiceByServer[serverName] || {};
+      const { serverName, userNames } = action.payload;
+      const serverUsersInVoice = { ...(state.usersInVoiceByServer[serverName] || {}) };
+      userNames.forEach(userName => {
+        serverUsersInVoice[userName] = true;
+      });
       return {
         ...state,
         usersInVoiceByServer: {
           ...state.usersInVoiceByServer,
-          [serverName]: {
-            ...serverUsersInVoice,
-            [userName]: true,
-          },
+          [serverName]: serverUsersInVoice,
         },
       };
     }
     case USER_LEAVE_VOICE: {
-      const { serverName, userName } = action.payload;
+      const { serverName, userNames } = action.payload;
       const serverUsersInVoice = { ...(state.usersInVoiceByServer[serverName] || {}) };
-      delete serverUsersInVoice[userName];
+      userNames.forEach(userName => {
+        delete serverUsersInVoice[userName];
+      });
       return {
         ...state,
         usersInVoiceByServer: {

@@ -13,7 +13,11 @@ function App({ store }) {
   const tick = useSelector(state => state.ui.tick);
 
   useEffect(() => {
+    console.log('Dispatching loadInitialData from App component');
     dispatch(loadInitialData());
+  }, []);
+
+  useEffect(() => {
     const tickInterval = setInterval(() => {
       dispatch(incrementTick());
     }, 1000 / 30); // 30 FPS

@@ -3,7 +3,7 @@ import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA, TOGGLE_DEV_MODE, INCR
 const initialState = {
   selectedServer: null,
   selectedChannel: null,
-  devMode: true,
+  devMode: false,
   tick: 0,
 };
 

@@ -28,10 +28,10 @@ const channelsReducer = (state = initialState, action) => {
       }
     }
     case USER_JOIN_VOICE: {
-      const { serverName, channelName, userName } = action.payload;
+      const { serverName, channelName, userNames } = action.payload;
       const voiceChannels = state.voiceByServer[serverName];
       const channel = voiceChannels[channelName];
-      const updatedChannel = { ...channel, users: [...channel.users, userName] };
+      const updatedChannel = { ...channel, users: [...channel.users, ...userNames] };
       return {
         ...state,
         voiceByServer: {
@@ -41,10 +41,11 @@ const channelsReducer = (state = initialState, action) => {
       };
     }
     case USER_LEAVE_VOICE: {
-      const { serverName, channelName, userName } = action.payload;
+      const { serverName, channelName, userNames } = action.payload;
       const voiceChannels = state.voiceByServer[serverName];
       const channel = voiceChannels[channelName];
-      const updatedChannel = { ...channel, users: channel.users.filter(u => u !== userName) };
+      const usersToLeaveSet = new Set(userNames);
+      const updatedChannel = { ...channel, users: channel.users.filter(u => !usersToLeaveSet.has(u)) };
       return {
         ...state,
         voiceByServer: {
