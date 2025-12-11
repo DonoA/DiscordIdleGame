@@ -1,11 +1,13 @@
 import { INCREMENT_BITS, SPEND_BITS } from '../actions/types';
+import { BitsState } from '../types';
+import { PayloadAction } from '../types';
 
-const initialState = {
+const initialState: BitsState = {
   totalBits: 0,
   currentBits: 0,
 };
 
-const bitsReducer = (state = initialState, action: any) => {
+const bitsReducer = (state = initialState, action: PayloadAction<number>) => {
   switch (action.type) {
     case INCREMENT_BITS:
       return {

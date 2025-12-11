@@ -1,15 +1,17 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectServer } from '../actions';
+import { RootState } from '../types';
+import { useAppDispatch } from '../store';
 
 const ServerList = () => {
-  const servers = useSelector((state: any) => Object.values(state.servers));
-  const selectedServerName = useSelector((state: any) => state.ui.selectedServer);
-  const dispatch = useDispatch();
+  const servers = useSelector((state: RootState) => Object.values(state.servers));
+  const selectedServerName = useSelector((state: RootState) => state.ui.selectedServer);
+  const dispatch = useAppDispatch();
 
   return (
     <div className="server-list">
-      {servers.map((server: any) => (
+      {servers.map(server => (
         <div
           key={server.name}
           className={`server-icon ${server.name === selectedServerName ? 'active' : ''}`}

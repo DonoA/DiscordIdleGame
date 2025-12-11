@@ -1,13 +1,14 @@
 import { SELECT_SERVER, SELECT_CHANNEL, LOAD_INITIAL_DATA, TOGGLE_DEV_MODE, INCREMENT_TICK } from '../actions/types';
+import { UIState, PayloadAction } from '../types';
 
-const initialState = {
+const initialState: UIState = {
   selectedServer: null,
   selectedChannel: null,
   devMode: false,
   tick: 0,
 };
 
-const uiReducer = (state = initialState, action: any) => {
+const uiReducer = (state = initialState, action: PayloadAction<any>): UIState => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {

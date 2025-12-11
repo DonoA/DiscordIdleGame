@@ -1,17 +1,18 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { RootState } from '../types';
 
 const MessageList = () => {
-  const selectedServerName = useSelector((state: any) => state.ui.selectedServer);
-  const selectedChannelName = useSelector((state: any) => state.ui.selectedChannel);
-  const messages = useSelector((state: any) => {
+  const selectedServerName = useSelector((state: RootState) => state.ui.selectedServer);
+  const selectedChannelName = useSelector((state: RootState) => state.ui.selectedChannel);
+  const messages = useSelector((state: RootState) => {
     if (!selectedServerName || !selectedChannelName) return [];
     return state.messages.byServer[selectedServerName]?.[selectedChannelName] || [];
   });
 
   return (
     <div className="message-list">
-      {messages.map((message: any, index: number) => (
+      {messages.map((message, index) => (
         <div key={index} className="message">
           <div className="message-author">{message.author}</div>
           <div className="message-content">{message.content}</div>
@@ -22,7 +23,7 @@ const MessageList = () => {
 };
 
 const ChatPanel = () => {
-  const selectedChannelName = useSelector((state: any) => state.ui.selectedChannel);
+  const selectedChannelName = useSelector((state: RootState) => state.ui.selectedChannel);
 
   if (!selectedChannelName) {
     return <div className="chat-panel"></div>;

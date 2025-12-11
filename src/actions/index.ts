@@ -16,6 +16,7 @@ import {
   ADD_VOICE_CHANNEL,
   INCREMENT_TICK,
 } from './types';
+import { AppDispatch, RootState } from '../store';
 
 export const selectServer = (serverName: string) => ({
   type: SELECT_SERVER,
@@ -27,7 +28,7 @@ export const selectChannel = (channelName: string) => ({
   payload: channelName,
 });
 
-export const loadInitialData = () => async (dispatch: any) => {
+export const loadInitialData = () => async (dispatch: AppDispatch) => {
   console.log('Loading initial server data:', new Error().stack);
   const data = await fetchData();
   dispatch({
@@ -36,21 +37,21 @@ export const loadInitialData = () => async (dispatch: any) => {
   });
 };
 
-export const addServer = (serverName: string) => (dispatch: any, getState: any) => {
+export const addServer = (serverName: string) => (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch({
     type: ADD_SERVER,
     payload: { server: { name: serverName } },
   });
 };
 
-export const addTextChannel = (serverName: string, channelName: string) => (dispatch: any, getState: any) => {
+export const addTextChannel = (serverName: string, channelName: string) => (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch({
     type: ADD_TEXT_CHANNEL,
     payload: { serverName, channel: { name: channelName, type: 'text', messageCount: 0 } },
   });
 };
 
-export const addVoiceChannel = (serverName: string, channelName: string) => (dispatch: any, getState: any) => {
+export const addVoiceChannel = (serverName: string, channelName: string) => (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch({
     type: ADD_VOICE_CHANNEL,
     payload: { serverName, channel: { name: channelName, type: 'voice', users: [] } },
@@ -67,7 +68,7 @@ export const userLeaveVoice = (serverName: string, channelName: string, userName
   payload: { serverName, channelName, userNames },
 });
 
-export const addRandomMessage = (serverName: string, channelName: string, userName: string) => async (dispatch: any, getState: any) => {
+export const addRandomMessage = (serverName: string, channelName: string, userName: string) => async (dispatch: AppDispatch, getState: () => RootState) => {
   const { users } = getState();
   const serverUsers = users.usersByServer[serverName];
 
@@ -87,7 +88,7 @@ export const addRandomMessage = (serverName: string, channelName: string, userNa
   }
 };
 
-export const addUser = (serverName: string, userName: string) => (dispatch: any, getState: any) => {
+export const addUser = (serverName: string, userName: string) => (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch({
     type: ADD_USER,
     payload: { serverName, userName },

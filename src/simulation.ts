@@ -1,11 +1,13 @@
 import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits } from './actions';
+import { Store } from 'redux';
+import { RootState, TextChannel } from './types';
 
 const MESSAGE_CHANCE_PER_TICK = 0.01;
 const BITS_PER_TICK_PER_USER_IN_VOICE = 0.1;
 const LEAVE_CHANNEL_CHANCE_PER_TICK = 0.1;
 const JOIN_CHANNEL_CHANCE_PER_TICK = 0.05;
 
-export const runSimulation = (store: any, tick: any) => {
+export const runSimulation = (store: Store<RootState> | any, tick: number) => {
   const state = store.getState();
   const { users, servers, channels } = state;
   const serverNames = Object.keys(servers);
@@ -26,13 +28,13 @@ export const runSimulation = (store: any, tick: any) => {
         // Leave Logic
         const usersToLeave = channel.users.filter(() => Math.random() < LEAVE_CHANNEL_CHANCE_PER_TICK);
         if (usersToLeave.length > 0) {
-          store.dispatch(userLeaveVoice(serverName, channelName, usersToLeave));
+          store.dispatch(userLeaveVoice(serverName, channelName, usersToLeave) as any);
         }
 
         // Join Logic
-        const availableUsers = serverUsers.filter((u: any) => !usersInVoice[u]);
+        const availableUsers = serverUsers.filter((u: string) => !usersInVoice[u]);
         const numToJoin = Math.floor(availableUsers.length * JOIN_CHANNEL_CHANCE_PER_TICK);
-        const usersToJoin = [];
+        const usersToJoin: string[] = [];
         for (let i = 0; i < numToJoin; i++) {
           const userToJoin = availableUsers.splice(Math.floor(Math.random() * availableUsers.length), 1)[0];
           if(userToJoin) {
@@ -40,7 +42,7 @@ export const runSimulation = (store: any, tick: any) => {
           }
         }
         if (usersToJoin.length > 0) {
-          store.dispatch(userJoinVoice(serverName, channelName, usersToJoin));
+          store.dispatch(userJoinVoice(serverName, channelName, usersToJoin) as any);
         }
       });
     }
@@ -49,12 +51,14 @@ export const runSimulation = (store: any, tick: any) => {
   // --- Message Simulation ---
   serverNames.forEach(serverName => {
     const serverUsers = users.usersByServer[serverName];
-    const textChannels = channels.textByServer[serverName];
-    if (serverUsers && serverUsers.length > 0 && textChannels && Object.keys(textChannels).length > 0) {
-      serverUsers.forEach((userName: any) => {
-        if (Math.random() < MESSAGE_CHANCE_PER_TICK) {
-          const channelName = Object.keys(textChannels)[Math.floor(Math.random() * Object.keys(textChannels).length)];
-          (store.dispatch as any)(addRandomMessage(serverName, channelName, userName));
+    const textChannels = Object.values(channels.textByServer[serverName]) as TextChannel[];
+    if (serverUsers && serverUsers.length > 0 && textChannels && textChannels.length > 0) {
+      textChannels.forEach((channel) => {
+        const messageCount = serverUsers.length * MESSAGE_CHANCE_PER_TICK;
+        const messagesToSend = Math.floor(channel.messageCount + messageCount) - Math.floor(channel.messageCount);
+        for (let i = 0; i < Math.floor(messagesToSend); i++) {
+          const randomUser = serverUsers[Math.floor(Math.random() * serverUsers.length)];
+          store.dispatch(addRandomMessage(serverName, channel.name, randomUser));
         }
       });
     }
@@ -73,6 +77,6 @@ export const runSimulation = (store: any, tick: any) => {
   });
 
   if (usersInVoice > 0) {
-    store.dispatch(incrementBits(usersInVoice * BITS_PER_TICK_PER_USER_IN_VOICE));
+    store.dispatch(incrementBits(usersInVoice * BITS_PER_TICK_PER_USER_IN_VOICE) as any);
   }
 };

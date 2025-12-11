@@ -1,11 +1,12 @@
 import { LOAD_INITIAL_DATA, ADD_USER, USER_JOIN_VOICE, USER_LEAVE_VOICE } from '../actions/types';
+import { UsersState, PayloadAction } from '../types';
 
-const initialState = {
+const initialState: UsersState = {
   usersByServer: {},
   usersInVoiceByServer: {},
 };
 
-const usersReducer = (state = initialState, action: any) => {
+const usersReducer = (state = initialState, action: PayloadAction<any>): UsersState => {
   switch (action.type) {
     case LOAD_INITIAL_DATA:
       return {
@@ -14,7 +15,7 @@ const usersReducer = (state = initialState, action: any) => {
       };
     case ADD_USER: {
       const { serverName, userName } = action.payload;
-      const serverUsers = (state as any).usersByServer[serverName] || [];
+      const serverUsers = state.usersByServer[serverName] || [];
       return {
         ...state,
         usersByServer: {
@@ -25,8 +26,8 @@ const usersReducer = (state = initialState, action: any) => {
     }
     case USER_JOIN_VOICE: {
       const { serverName, userNames } = action.payload;
-      const serverUsersInVoice = { ...((state as any).usersInVoiceByServer[serverName] || {}) };
-      userNames.forEach((userName: any) => {
+      const serverUsersInVoice = { ...(state.usersInVoiceByServer[serverName] || {}) };
+      userNames.forEach((userName: string) => {
         serverUsersInVoice[userName] = true;
       });
       return {
@@ -39,8 +40,8 @@ const usersReducer = (state = initialState, action: any) => {
     }
     case USER_LEAVE_VOICE: {
       const { serverName, userNames } = action.payload;
-      const serverUsersInVoice = { ...((state as any).usersInVoiceByServer[serverName] || {}) };
-      userNames.forEach((userName: any) => {
+      const serverUsersInVoice = { ...(state.usersInVoiceByServer[serverName] || {}) };
+      userNames.forEach((userName: string) => {
         delete serverUsersInVoice[userName];
       });
       return {

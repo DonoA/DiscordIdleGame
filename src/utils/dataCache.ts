@@ -1,6 +1,8 @@
-let cache: any = null;
+import { DataCache } from '../types';
 
-export const getData = async () => {
+let cache: DataCache | null = null;
+
+export const getData = async (): Promise<DataCache> => {
   if (cache) {
     return cache;
   }

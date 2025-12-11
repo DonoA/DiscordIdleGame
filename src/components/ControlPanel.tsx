@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { addServer, addTextChannel, addVoiceChannel, addUser, toggleDevMode, addRandomMessage, spendBits } from '../actions';
 import { formatNumber } from '../utils/formatting';
 import { getData } from '../utils/dataCache';
+import { RootState, ServerData, UserData } from '../types';
+import { useAppDispatch } from '../store';
 
 const SERVER_COST = {
   base: 10000,
   growth: 1.5,
 }
 
-const CHANNEL_COST = {
+const TEXT_CHANNEL_COST = {
   base: 100,
-  growth: 1.1,
+  growth: 1.2,
+}
+
+const VOICE_CHANNEL_COST = {
+  base: 500,
+  growth: 1.2,
 }
 
 const USER_COST = {
@@ -20,12 +27,12 @@ const USER_COST = {
 }
 
 const ControlPanel = () => {
-  const dispatch = useDispatch();
-  const { servers, channels, users, bits, ui } = useSelector((state: any) => state);
+  const dispatch = useAppDispatch();
+  const { servers, channels, users, bits, ui } = useSelector((state: RootState) => state);
   const { selectedServer, selectedChannel, devMode } = ui;
   const { currentBits, totalBits } = bits;
-  const [serverThemes, setServerThemes] = useState([]);
-  const [userNames, setUserNames] = useState([]);
+  const [serverThemes, setServerThemes] = useState<ServerData[]>([]);
+  const [userNames, setUserNames] = useState<UserData>([]);
 
 
   useEffect(() => {
@@ -51,7 +58,8 @@ const ControlPanel = () => {
     const numChannels = type === 'text'
       ? Object.keys(channels.textByServer[selectedServer] || {}).length
       : Object.keys(channels.voiceByServer[selectedServer] || {}).length;
-    return Math.floor(CHANNEL_COST.base * (CHANNEL_COST.growth ** (numChannels + num - 1)));
+    const channelCost = type === 'text' ? TEXT_CHANNEL_COST : VOICE_CHANNEL_COST;
+    return Math.floor(channelCost.base * (channelCost.growth ** (numChannels + num - 1)));
   }
 
   const serverCost = getServerCost();
@@ -72,17 +80,17 @@ const ControlPanel = () => {
 
   const handleAddMessage = () => {
     if (selectedServer && selectedChannel) {
-      (dispatch as any)(addRandomMessage(selectedServer, selectedChannel, 'admin'));
+      dispatch(addRandomMessage(selectedServer, selectedChannel, 'admin') as any);
     } else {
       alert('Please select a server and channel first.');
     }
   };
 
   const addRandomChannels = (count: number, type: string) => {
-    const serverTheme: any = serverThemes.find((s: any) => s.name === selectedServer);
+    const serverTheme = serverThemes.find(s => s.name === selectedServer);
     if (serverTheme) {
-      const possibleChannels = serverTheme.channels.filter((c: any) => c.type === type);
-      const existingChannelNames = Object.keys(channels.textByServer[selectedServer] || {});
+      const possibleChannels = serverTheme.channels.filter(c => c.type === type);
+      const existingChannelNames = selectedServer ? Object.keys(channels.textByServer[selectedServer] || {}) : [];
       let cost = 0;
       for (let i = 0; i < count; i++) {
         cost += getChannelCost(type, i + 1);
@@ -99,9 +107,9 @@ const ControlPanel = () => {
         const randomChannelName = possibleChannels[Math.floor(Math.random() * possibleChannels.length)].name;
         const channelName = getUniqueName(randomChannelName, existingChannelNames);
         if (type === 'voice') {
-          (dispatch as any)(addVoiceChannel(selectedServer, channelName));
+          if (selectedServer) dispatch(addVoiceChannel(selectedServer, channelName) as any);
         } else if (type === 'text') {
-          (dispatch as any)(addTextChannel(selectedServer, channelName));
+          if (selectedServer) dispatch(addTextChannel(selectedServer, channelName) as any);
         } else {
           console.error('Unknown channel type', type);
         }
@@ -125,9 +133,9 @@ const ControlPanel = () => {
     }
 
     for (let i = 0; i < count; i++) {
-      const randomServer: any = serverThemes[Math.floor(Math.random() * serverThemes.length)];
+      const randomServer = serverThemes[Math.floor(Math.random() * serverThemes.length)];
       const allowedName = getUniqueName(randomServer.name, existingServerNames);
-      (dispatch as any)(addServer(allowedName));
+      dispatch(addServer(allowedName) as any);
     }
   };
 
@@ -164,7 +172,7 @@ const ControlPanel = () => {
       for (let i = 0; i < count; i++) {
         const randomUser = userNames[Math.floor(Math.random() * userNames.length)];
         const allowedName = `${randomUser}${Date.now() + i}`; // Ensure uniqueness
-        (dispatch as any)(addUser(selectedServer, allowedName));
+        if (selectedServer) dispatch(addUser(selectedServer, allowedName) as any);
       }
     } else {
       alert('Please select a server first.');
@@ -175,7 +183,7 @@ const ControlPanel = () => {
     <div className="control-panel">
       <div>
         <label>
-          <input type="checkbox" checked={devMode} onChange={() => dispatch(toggleDevMode())} />
+          <input type="checkbox" checked={devMode} onChange={() => dispatch(toggleDevMode() as any)} />
           Dev Mode
         </label>
       </div>
@@ -192,31 +200,31 @@ const ControlPanel = () => {
       <div>
         <span>Add User (Cost: {formatNumber(userCost)})</span>
         <br />
-        <button onClick={() => handleAddUser(1)} disabled={!selectedServer || (!devMode && bits < userCost)}>+1</button>
-        <button onClick={() => handleAddUser(10)} disabled={!selectedServer || (!devMode && bits < userCost * 10)}>+10</button>
-        <button onClick={() => handleAddUser(100)} disabled={!selectedServer || (!devMode && bits < userCost * 100)}>+100</button>
+        <button onClick={() => handleAddUser(1)} disabled={!selectedServer || (!devMode && bits.currentBits < userCost)}>+1</button>
+        <button onClick={() => handleAddUser(10)} disabled={!selectedServer || (!devMode && bits.currentBits < userCost * 10)}>+10</button>
+        <button onClick={() => handleAddUser(100)} disabled={!selectedServer || (!devMode && bits.currentBits < userCost * 100)}>+100</button>
       </div>
       <div>
         <span>Add Text Channel (Cost: {formatNumber(textChannelCost)})</span>
         <br />
-        <button onClick={() => handleAddTextChannel(1)} disabled={!selectedServer || (!devMode && bits < textChannelCost)}>+1</button>
-        <button onClick={() => handleAddTextChannel(10)} disabled={!selectedServer || (!devMode && bits < textChannelCost * 10)}>+10</button>
-        <button onClick={() => handleAddTextChannel(100)} disabled={!selectedServer || (!devMode && bits < textChannelCost * 100)}>+100</button>
+        <button onClick={() => handleAddTextChannel(1)} disabled={!selectedServer || (!devMode && bits.currentBits < textChannelCost)}>+1</button>
+        <button onClick={() => handleAddTextChannel(10)} disabled={!selectedServer || (!devMode && bits.currentBits < textChannelCost * 10)}>+10</button>
+        <button onClick={() => handleAddTextChannel(100)} disabled={!selectedServer || (!devMode && bits.currentBits < textChannelCost * 100)}>+100</button>
       </div>
       <div>
         <span>Add Voice Channel (Cost: {formatNumber(voiceChannelCost)})</span>
         <br />
-        <button onClick={() => handleAddVoiceChannel(1)} disabled={!selectedServer || (!devMode && bits < voiceChannelCost)}>+1</button>
-        <button onClick={() => handleAddVoiceChannel(10)} disabled={!selectedServer || (!devMode && bits < voiceChannelCost * 10)}>+10</button>
-        <button onClick={() => handleAddVoiceChannel(100)} disabled={!selectedServer || (!devMode && bits < voiceChannelCost * 100)}>+100</button>
+        <button onClick={() => handleAddVoiceChannel(1)} disabled={!selectedServer || (!devMode && bits.currentBits < voiceChannelCost)}>+1</button>
+        <button onClick={() => handleAddVoiceChannel(10)} disabled={!selectedServer || (!devMode && bits.currentBits < voiceChannelCost * 10)}>+10</button>
+        <button onClick={() => handleAddVoiceChannel(100)} disabled={!selectedServer || (!devMode && bits.currentBits < voiceChannelCost * 100)}>+100</button>
       </div>
 
       <div>
         <span>Add Server (Cost: {formatNumber(serverCost)})</span>
         <br />
-        <button onClick={() => handleAddServer(1)} disabled={!devMode && bits < serverCost}>+1</button>
-        <button onClick={() => handleAddServer(10)} disabled={!devMode && bits < serverCost * 10}>+10</button>
-        <button onClick={() => handleAddServer(100)} disabled={!devMode && bits < serverCost * 100}>+100</button>
+        <button onClick={() => handleAddServer(1)} disabled={!devMode && bits.currentBits < serverCost}>+1</button>
+        <button onClick={() => handleAddServer(10)} disabled={!devMode && bits.currentBits < serverCost * 10}>+10</button>
+        <button onClick={() => handleAddServer(100)} disabled={!devMode && bits.currentBits < serverCost * 100}>+100</button>
       </div>
     </div>
   );
