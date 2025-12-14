@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { addServer, addTextChannel, addVoiceChannel, addUser, toggleDevMode, addRandomMessage, spendBits } from '../actions';
+import { addServer, addTextChannel, addVoiceChannel, addUser, toggleDevMode, addRandomMessage, spendBits, addMessageCount } from '../actions';
 import { formatNumber } from '../utils/formatting';
 import { getData } from '../utils/dataCache';
 import { RootState, ServerData, UserData } from '../types';
@@ -12,7 +12,7 @@ const SERVER_COST = {
 }
 
 const TEXT_CHANNEL_COST = {
-  base: 100,
+  base: 10,
   growth: 1.2,
 }
 
@@ -22,8 +22,8 @@ const VOICE_CHANNEL_COST = {
 }
 
 const USER_COST = {
-  base: 10,
-  growth: 1.1,
+  base: 5,
+  growth: 1.2,
 }
 
 const ControlPanel = () => {
@@ -59,7 +59,8 @@ const ControlPanel = () => {
       ? Object.keys(channels.textByServer[selectedServer] || {}).length
       : Object.keys(channels.voiceByServer[selectedServer] || {}).length;
     const channelCost = type === 'text' ? TEXT_CHANNEL_COST : VOICE_CHANNEL_COST;
-    return Math.floor(channelCost.base * (channelCost.growth ** (numChannels + num - 1)));
+    const adjustedCount = Math.max(0, numChannels + num - 2);
+    return Math.floor(channelCost.base * (channelCost.growth ** (adjustedCount)));
   }
 
   const serverCost = getServerCost();
@@ -80,6 +81,7 @@ const ControlPanel = () => {
 
   const handleAddMessage = () => {
     if (selectedServer && selectedChannel) {
+      dispatch(addMessageCount(selectedServer, selectedChannel, 1));
       dispatch(addRandomMessage(selectedServer, selectedChannel, 'admin') as any);
     } else {
       alert('Please select a server and channel first.');
@@ -87,10 +89,17 @@ const ControlPanel = () => {
   };
 
   const addRandomChannels = (count: number, type: string) => {
+    if (!selectedServer) {
+      alert('Please select a server first.');
+      return;
+    }
+
     const serverTheme = serverThemes.find(s => s.name === selectedServer);
     if (serverTheme) {
       const possibleChannels = serverTheme.channels.filter(c => c.type === type);
-      const existingChannelNames = selectedServer ? Object.keys(channels.textByServer[selectedServer] || {}) : [];
+      const existingChannelNames = type === 'text' ? 
+        Object.keys(channels.textByServer[selectedServer] || {}) : 
+        Object.keys(channels.voiceByServer[selectedServer] || {});
       let cost = 0;
       for (let i = 0; i < count; i++) {
         cost += getChannelCost(type, i + 1);
@@ -107,9 +116,10 @@ const ControlPanel = () => {
         const randomChannelName = possibleChannels[Math.floor(Math.random() * possibleChannels.length)].name;
         const channelName = getUniqueName(randomChannelName, existingChannelNames);
         if (type === 'voice') {
-          if (selectedServer) dispatch(addVoiceChannel(selectedServer, channelName) as any);
+          console.log('Adding voice channel', channelName);
+          dispatch(addVoiceChannel(selectedServer, channelName) as any);
         } else if (type === 'text') {
-          if (selectedServer) dispatch(addTextChannel(selectedServer, channelName) as any);
+          dispatch(addTextChannel(selectedServer, channelName) as any);
         } else {
           console.error('Unknown channel type', type);
         }

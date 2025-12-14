@@ -15,6 +15,7 @@ import {
   ADD_TEXT_CHANNEL,
   ADD_VOICE_CHANNEL,
   INCREMENT_TICK,
+  ADD_MESSAGE_COUNT,
 } from './types';
 import { AppDispatch, RootState } from '../store';
 
@@ -87,6 +88,11 @@ export const addRandomMessage = (serverName: string, channelName: string, userNa
     dispatch(incrementBits(1));
   }
 };
+
+export const addMessageCount = (serverName: string, channelName: string, count: number) => ({
+  type: ADD_MESSAGE_COUNT,
+  payload: { serverName, channelName, messageCount: count },
+});
 
 export const addUser = (serverName: string, userName: string) => (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch({

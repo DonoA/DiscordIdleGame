@@ -1,4 +1,4 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE, ADD_RANDOM_MESSAGE, ADD_TEXT_CHANNEL, ADD_VOICE_CHANNEL } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_CHANNEL, USER_JOIN_VOICE, USER_LEAVE_VOICE, ADD_RANDOM_MESSAGE, ADD_TEXT_CHANNEL, ADD_VOICE_CHANNEL, ADD_MESSAGE_COUNT } from '../actions/types';
 import { ChannelsState, PayloadAction } from '../types';
 
 const initialState: ChannelsState = {
@@ -55,11 +55,11 @@ const channelsReducer = (state = initialState, action: PayloadAction<any>): Chan
         },
       };
     }
-    case ADD_RANDOM_MESSAGE: {
-      const { serverName, channelName } = action.payload;
+    case ADD_MESSAGE_COUNT: {
+      const { serverName, channelName, messageCount } = action.payload;
       const textChannels = state.textByServer[serverName];
       const channel = textChannels[channelName];
-      const updatedChannel = { ...channel, messageCount: channel.messageCount + 1 };
+      const updatedChannel = { ...channel, messageCount: channel.messageCount + messageCount };
       return {
         ...state,
         textByServer: {
