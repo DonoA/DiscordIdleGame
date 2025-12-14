@@ -1,4 +1,4 @@
-import { LOAD_INITIAL_DATA, ADD_RANDOM_MESSAGE } from '../actions/types';
+import { LOAD_INITIAL_DATA, ADD_RANDOM_MESSAGE, ADD_SERVER } from '../actions/types';
 import { MessagesState, PayloadAction } from '../types';
 
 const initialState: MessagesState = {
@@ -25,6 +25,16 @@ const messagesReducer = (state = initialState, action: PayloadAction<any>): Mess
             ...serverMessages,
             [channelName]: newMessages,
           },
+        },
+      };
+    }
+    case ADD_SERVER: {
+      const { server } = action.payload;
+      return {
+        ...state,
+        byServer: {
+          ...state.byServer,
+          [server.name]: {},
         },
       };
     }

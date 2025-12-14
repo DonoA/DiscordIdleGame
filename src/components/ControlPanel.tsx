@@ -5,26 +5,8 @@ import { formatNumber } from '../utils/formatting';
 import { getData } from '../utils/dataCache';
 import { RootState, ServerData, UserData } from '../types';
 import { useAppDispatch } from '../store';
-
-const SERVER_COST = {
-  base: 10000,
-  growth: 1.5,
-}
-
-const TEXT_CHANNEL_COST = {
-  base: 10,
-  growth: 1.2,
-}
-
-const VOICE_CHANNEL_COST = {
-  base: 500,
-  growth: 1.2,
-}
-
-const USER_COST = {
-  base: 5,
-  growth: 1.2,
-}
+import HelpMenu from './HelpMenu';
+import { SERVER_COST, TEXT_CHANNEL_COST, VOICE_CHANNEL_COST, USER_COST } from '../constants';
 
 const ControlPanel = () => {
   const dispatch = useAppDispatch();
@@ -191,6 +173,7 @@ const ControlPanel = () => {
 
   return (
     <div className="control-panel">
+      <HelpMenu />
       <div>
         <label>
           <input type="checkbox" checked={devMode} onChange={() => dispatch(toggleDevMode() as any)} />

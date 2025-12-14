@@ -1,11 +1,13 @@
 import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits, addMessageCount } from './actions';
 import { Store } from 'redux';
 import { RootState, TextChannel } from './types';
-
-const MESSAGE_CHANCE_PER_TICK = 0.005;
-const BITS_PER_TICK_PER_USER_IN_VOICE = 0.1;
-const LEAVE_CHANNEL_CHANCE_PER_TICK = 0.005;
-const JOIN_CHANNEL_CHANCE_PER_TICK = 0.001;
+import {
+  MESSAGE_CHANCE_PER_TICK,
+  LEAVE_CHANNEL_CHANCE_PER_TICK,
+  JOIN_CHANNEL_CHANCE_PER_TICK,
+  BITS_PER_MESSAGE,
+  VOICE_CHANNEL_MULTIPLIER
+} from './constants';
 
 export const runSimulation = (store: Store<RootState> | any, tick: number) => {
   const state = store.getState();
@@ -46,13 +48,19 @@ export const runSimulation = (store: Store<RootState> | any, tick: number) => {
   serverNames.forEach(serverName => {
     const serverUsers = users.usersByServer[serverName];
     const textChannels = Object.values(channels.textByServer[serverName]) as TextChannel[];
+    const voiceChannels = channels.voiceByServer[serverName] || {};
+    const voiceChannelCount = Object.keys(voiceChannels).length;
     if (serverUsers && serverUsers.length > 0 && textChannels && textChannels.length > 0) {
       textChannels.forEach((channel) => {
-        const messageCount = serverUsers.length * MESSAGE_CHANCE_PER_TICK * Math.random();
+        // Calculate number of messages to send based on users and voice channel multiplier
+        const multiplier = voiceChannelCount > 0 ? (VOICE_CHANNEL_MULTIPLIER * voiceChannelCount) : 1;
+
+        const messageCount = serverUsers.length * MESSAGE_CHANCE_PER_TICK * Math.random() * multiplier;
         const messagesToSend = Math.floor(channel.messageCount + messageCount) - Math.floor(channel.messageCount);
         for (let i = 0; i < Math.floor(messagesToSend); i++) {
           const randomUser = serverUsers[Math.floor(Math.random() * serverUsers.length)];
           store.dispatch(addRandomMessage(serverName, channel.name, randomUser));
+          store.dispatch(incrementBits(BITS_PER_MESSAGE) as any);
         }
 
         // Store fractional message counts for more accurate simulation
@@ -60,20 +68,4 @@ export const runSimulation = (store: Store<RootState> | any, tick: number) => {
       });
     }
   });
-
-
-  // --- Bits Generation ---
-  let usersInVoice = 0;
-  serverNames.forEach(serverName => {
-    const voiceChannels = channels.voiceByServer[serverName];
-    if (voiceChannels) {
-      Object.values(voiceChannels).forEach((vc: any) => {
-        usersInVoice += vc.users.length;
-      });
-    }
-  });
-
-  if (usersInVoice > 0) {
-    store.dispatch(incrementBits(usersInVoice * BITS_PER_TICK_PER_USER_IN_VOICE) as any);
-  }
 };
