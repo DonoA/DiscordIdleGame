@@ -8,7 +8,7 @@ import { useAppDispatch } from '../store';
 import HelpMenu from './HelpMenu';
 import { SERVER_COST, TEXT_CHANNEL_COST, VOICE_CHANNEL_COST, USER_COST, MODERATOR_COST, INFLUENCER_COST } from '../constants';
 import { createNewUser } from '../utils/userHelpers';
-import { getUniqueName } from '../utils/nameHelpers';
+import { generateTextChannelNames, generateVoiceChannelNames, getUniqueName } from '../utils/nameHelpers';
 
 const ControlPanel = () => {
   const dispatch = useAppDispatch();
@@ -74,45 +74,42 @@ const ControlPanel = () => {
     }
   };
 
-  const addRandomChannels = (count: number, type: string) => {
+  const addRandomChannels = async (count: number, type: string) => {
     if (!selectedServer) {
       alert('Please select a server first.');
       return;
     }
 
-    const serverTheme = serverThemes.find(s => s.name === selectedServer);
-    if (serverTheme) {
-      const possibleChannels = serverTheme.channels.filter(c => c.type === type);
-      const existingChannelNames = type === 'text' ? 
-        Object.keys(channels.textByServer[selectedServer] || {}) : 
-        Object.keys(channels.voiceByServer[selectedServer] || {});
-      let cost = 0;
-      for (let i = 0; i < count; i++) {
-        cost += getChannelCost(type, i + 1);
-      }
+    let cost = 0;
+    for (let i = 0; i < count; i++) {
+      cost += getChannelCost(type, i + 1);
+    }
 
-      if (!devMode) {
-        if (currentBits < cost) {
-          return;
-        }
-        dispatch(spendBits(cost));
+    if (!devMode) {
+      if (currentBits < cost) {
+        return;
       }
+      dispatch(spendBits(cost));
+    }
 
-      for (let i = 0; i < count; i++) {
-        const randomChannelName = possibleChannels[Math.floor(Math.random() * possibleChannels.length)].name;
-        const channelName = getUniqueName(randomChannelName, existingChannelNames);
-        if (type === 'voice') {
-          console.log('Adding voice channel', channelName);
-          dispatch(addVoiceChannel(selectedServer, channelName) as any);
-        } else if (type === 'text') {
-          dispatch(addTextChannel(selectedServer, channelName) as any);
-        } else {
-          console.error('Unknown channel type', type);
-        }
-        existingChannelNames.push(channelName);
+    const existingChannelNames =
+      type === 'text'
+        ? Object.keys(channels.textByServer[selectedServer] || {})
+        : Object.keys(channels.voiceByServer[selectedServer] || {});
+
+    const newChannelNames =
+      type === 'text'
+        ? await generateTextChannelNames(selectedServer, count, existingChannelNames)
+        : await generateVoiceChannelNames(selectedServer, count, existingChannelNames);
+
+    for (const channelName of newChannelNames) {
+      if (type === 'voice') {
+        dispatch(addVoiceChannel(selectedServer, channelName) as any);
+      } else if (type === 'text') {
+        dispatch(addTextChannel(selectedServer, channelName) as any);
       }
     }
-  }
+  };
 
   const handleAddServer = (count: number) => {
     const existingServerNames = Object.keys(servers);
@@ -174,25 +171,44 @@ const ControlPanel = () => {
     }
   };
 
-  const handleAddModerator = () => {
+  const handleAddModerator = (count: number) => {
     if (selectedServer) {
-      const cost = getModeratorCost();
+      let cost = 0;
+      for (let i = 0; i < count; i++) {
+        cost += getModeratorCost(i + 1);
+      }
       if (!devMode && currentBits < cost) {
         return;
       }
       dispatch(spendBits(cost));
-      dispatch(addModerator(selectedServer) as any);
+      for (let i = 0; i < count; i++) {
+        dispatch(addModerator(selectedServer) as any);
+      }
     }
   };
 
-  const handleAddInfluencer = () => {
+  const handleAddInfluencer = (count: number) => {
     if (selectedServer) {
-      const cost = getInfluencerCost();
+      let cost = 0;
+      for (let i = 0; i < count; i++) {
+        cost += getInfluencerCost(i + 1);
+      }
       if (!devMode && currentBits < cost) {
         return;
       }
       dispatch(spendBits(cost));
-      dispatch(addInfluencer(selectedServer) as any);
+      for (let i = 0; i < count; i++) {
+        dispatch(addInfluencer(selectedServer) as any);
+      }
+    }
+  };
+
+  const handleResetGame = () => {
+    if (window.confirm('Are you sure you want to reset your game? All progress will be lost.')) {
+      // Clear the cookie
+      document.cookie = 'discordIdleGameState=;path=/;max-age=0';
+      // Reload the page
+      window.location.reload();
     }
   };
 
@@ -204,6 +220,9 @@ const ControlPanel = () => {
           <input type="checkbox" checked={devMode} onChange={() => dispatch(toggleDevMode() as any)} />
           Dev Mode
         </label>
+      </div>
+      <div>
+        <button onClick={handleResetGame}>Reset Game</button>
       </div>
       <div>
         <div>Current Bits: {formatNumber(Math.floor(currentBits))}</div>
@@ -247,12 +266,16 @@ const ControlPanel = () => {
       <div>
         <span>Add Moderator (Cost: {formatNumber(moderatorCost)})</span>
         <br />
-        <button onClick={handleAddModerator} disabled={!selectedServer || (!devMode && bits.currentBits < moderatorCost)}>+1</button>
+        <button onClick={() => handleAddModerator(1)} disabled={!selectedServer || (!devMode && bits.currentBits < moderatorCost)}>+1</button>
+        <button onClick={() => handleAddModerator(10)} disabled={!selectedServer || (!devMode && bits.currentBits < moderatorCost * 10)}>+10</button>
+        <button onClick={() => handleAddModerator(100)} disabled={!selectedServer || (!devMode && bits.currentBits < moderatorCost * 100)}>+100</button>
       </div>
       <div>
         <span>Add Influencer (Cost: {formatNumber(influencerCost)})</span>
         <br />
-        <button onClick={handleAddInfluencer} disabled={!selectedServer || (!devMode && bits.currentBits < influencerCost)}>+1</button>
+        <button onClick={() => handleAddInfluencer(1)} disabled={!selectedServer || (!devMode && bits.currentBits < influencerCost)}>+1</button>
+        <button onClick={() => handleAddInfluencer(10)} disabled={!selectedServer || (!devMode && bits.currentBits < influencerCost * 10)}>+10</button>
+        <button onClick={() => handleAddInfluencer(100)} disabled={!selectedServer || (!devMode && bits.currentBits < influencerCost * 100)}>+100</button>
       </div>
     </div>
   );

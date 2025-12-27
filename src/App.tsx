@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { loadInitialData, incrementTick } from './actions';
+import { incrementTick } from './actions';
 import { runSimulation } from './simulation';
 import ServerList from './components/ServerList';
 import ChannelList from './components/ChannelList';
@@ -14,11 +14,6 @@ import store from './store';
 function App() {
   const dispatch = useAppDispatch();
   const tick = useSelector((state: RootState) => state.ui.tick);
-
-  useEffect(() => {
-    console.log('Dispatching loadInitialData from App component');
-    dispatch(loadInitialData() as any);
-  }, [dispatch]);
 
   useEffect(() => {
     const tickInterval = setInterval(() => {

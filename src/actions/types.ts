@@ -20,3 +20,4 @@ export const INCREMENT_TICK = 'INCREMENT_TICK';
 export const REMOVE_USER = 'REMOVE_USER';
 export const ADD_MODERATOR = 'ADD_MODERATOR';
 export const ADD_INFLUENCER = 'ADD_INFLUENCER';
+export const HYDRATE_STATE = 'HYDRATE_STATE';

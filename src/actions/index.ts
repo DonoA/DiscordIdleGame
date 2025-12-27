@@ -1,5 +1,5 @@
 import { getData } from '../utils/dataCache';
-import { loadInitialData as fetchData } from '../utils/dataLoader';
+import { loadInitialData as fetchInitialData } from '../utils/dataLoader';
 import {
   SELECT_SERVER,
   SELECT_CHANNEL,
@@ -19,8 +19,10 @@ import {
   REMOVE_USER,
   ADD_MODERATOR,
   ADD_INFLUENCER,
+  HYDRATE_STATE,
 } from './types';
-import { AppDispatch, RootState } from '../store';
+import { AppDispatch } from '../store';
+import { RootState } from '../types';
 
 export const selectServer = (serverName: string) => ({
   type: SELECT_SERVER,
@@ -33,8 +35,7 @@ export const selectChannel = (channelName: string) => ({
 });
 
 export const loadInitialData = () => async (dispatch: AppDispatch) => {
-  console.log('Loading initial server data:', new Error().stack);
-  const data = await fetchData();
+  const data = await fetchInitialData();
   dispatch({
     type: LOAD_INITIAL_DATA,
     payload: data,
@@ -130,6 +131,11 @@ export const removeUser = (serverName: string, userName: string) => ({
 export const addModerator = (serverName: string) => ({
   type: ADD_MODERATOR,
   payload: { serverName },
+});
+
+export const hydrateState = (state: Partial<RootState>) => ({
+  type: HYDRATE_STATE,
+  payload: state,
 });
 
 export const addInfluencer = (serverName: string) => ({

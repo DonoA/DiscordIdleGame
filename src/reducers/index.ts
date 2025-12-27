@@ -5,8 +5,10 @@ import messagesReducer from './messagesReducer';
 import uiReducer from './uiReducer';
 import usersReducer from './usersReducer';
 import bitsReducer from './bitsReducer';
+import { HYDRATE_STATE } from '../actions/types';
+import { RootState } from '../types';
 
-export default combineReducers({
+const appReducer = combineReducers({
   servers: serversReducer,
   channels: channelsReducer,
   messages: messagesReducer,
@@ -14,3 +16,12 @@ export default combineReducers({
   users: usersReducer,
   bits: bitsReducer,
 });
+
+const rootReducer = (state: RootState | undefined, action: any): RootState => {
+  if (action.type === HYDRATE_STATE) {
+    state = { ...state, ...action.payload };
+  }
+  return appReducer(state, action);
+};
+
+export default rootReducer;
