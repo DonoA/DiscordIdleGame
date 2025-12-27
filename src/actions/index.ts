@@ -16,6 +16,9 @@ import {
   ADD_VOICE_CHANNEL,
   INCREMENT_TICK,
   ADD_MESSAGE_COUNT,
+  REMOVE_USER,
+  ADD_MODERATOR,
+  ADD_INFLUENCER,
 } from './types';
 import { AppDispatch, RootState } from '../store';
 
@@ -117,5 +120,20 @@ export const toggleDevMode = () => ({
 
 export const incrementTick = () => ({
   type: INCREMENT_TICK,
+});
+
+export const removeUser = (serverName: string, userName: string) => ({
+  type: REMOVE_USER,
+  payload: { serverName, userName },
+});
+
+export const addModerator = (serverName: string) => ({
+  type: ADD_MODERATOR,
+  payload: { serverName },
+});
+
+export const addInfluencer = (serverName: string) => ({
+  type: ADD_INFLUENCER,
+  payload: { serverName },
 });
 

@@ -1,54 +1,55 @@
-# Expanded Game Mechanics
+# Design Doc: Expanded Game Mechanics
 
-This document expands on the initial ideas listed in `AddedGameMechanics.md`.
+This document expands upon the initial concepts for new game mechanics, providing a more detailed framework for implementation.
 
-## 1. Bit Generation and User Lifecycles
+## 1. Core Gameplay Loop: Message-Based Economy & User Churn
 
-*   **Bits from Posts:** All bits, the primary in-game currency, are generated from user posts in text channels. The more active a channel, the more bits it generates.
-*   **User Attrition:** Users have a natural lifecycle and will eventually leave the server. This creates a constant need to attract new users to maintain a healthy bit economy. The base user lifespan will be a random value within a certain range, but can be influenced by other factors.
+### 1.1. Bit Generation from Posts
+- **Concept:** The primary source of the in-game currency, "bits," will be user activity in text channels. This shifts the core gameplay from a passive model to one that rewards fostering an active community.
+- **Mechanic:** Each message posted by a user in a text channel will generate a fixed number of bits.
 
-## 2. Voice Channels and User Retention
+### 1.2. User Attrition (Churn)
+- **Concept:** To create a dynamic challenge, users will naturally leave the server over time. This introduces a "leaky bucket" mechanic that players must actively manage.
+- **Mechanic:** Each user will have a small, constant probability of leaving the server during each game tick.
 
-*   **User Retention:** Voice channels will play a key role in retaining users. Users who join a voice channel will have their "leave timer" paused, and perhaps even slightly reversed, making them stay on the server longer.
-*   **Active vs. Idle:** While in a voice channel, users do not generate bits, creating a trade-off between user retention and bit generation.
+## 2. User Retention Mechanics
 
-## 3. Server Leveling
+### 2.1. Voice Channels as Retention Tools
+- **Concept:** Voice channels will serve as a primary way to keep users engaged and prevent them from leaving.
+- **Mechanic:** The presence of active users in voice channels will decrease the overall probability of any user leaving the server. The more users in voice, the lower the churn rate.
 
-*   **Experience Points:** Servers will gain experience points (XP) from various activities, such as user posts, users joining, and reaching certain milestones.
-*   **Leveling Up:** Once a server accumulates enough XP, it will level up.
-*   **Unlocks:** Leveling up a server will unlock new features, perks, and bonuses. Examples include:
-    *   Increased bit generation rates.
-    *   Higher user capacity.
-    *   New channel types (e.g., streaming channels).
-    *   Access to moderator tools.
+### 2.2. Moderators
+- **Concept:** Players can invest in moderators to actively combat user churn.
+- **Mechanic:** Moderators will be a purchasable server upgrade. Each moderator will provide a significant, flat reduction to the user churn probability.
 
-## 4. Moderators and Server Health
+## 3. Server Progression and Growth
 
-*   **Reducing Attrition:** Moderators will be a special user type that can be "assigned" to a server. Their presence will reduce the rate at which users leave the server.
-*   **Cost:** Hiring and maintaining moderators will have a bit cost, creating another strategic decision for the player.
+### 3.1. Server Leveling
+- **Concept:** Servers will have a leveling system that provides tangible benefits and unlocks new features, creating a long-term progression path.
+- **Mechanic:** Servers will gain experience points (XP) from user messages and other activities. Reaching new levels could unlock:
+    - Higher-tier channels that generate more bits per message.
+    - New Discord features like streaming or server boosts, which could provide global bonuses.
+    - Increased user capacity.
 
-## 5. Special Events
+### 3.2. Channel Upgrades
+- **Concept:** Individual channels can be upgraded to become more effective at generating bits.
+- **Mechanic:** Players can spend bits to level up a text channel. Each level increases the number of bits generated per message in that channel.
 
-*   **Attraction:** Special events can be triggered to attract a large influx of new users to the server.
-*   **Risk vs. Reward:** These events, while beneficial for population growth, also carry the risk of introducing "bad users" (trolls) into the user pool.
+## 4. Events and Advanced Mechanics
 
-## 6. Bad User Mechanic (Trolls)
+### 4.1. Special Events
+- **Concept:** Random events will occur that provide opportunities for rapid growth but come with associated risks.
+- **Mechanic:** An event might, for example, attract a large number of new users to the server instantly. However, this influx will also introduce "trolls" into the potential user pool.
 
-*   **Negative Impact:** Trolls are a special type of user that negatively impacts the server. They can:
-    *   Reduce bit generation in the channels they occupy.
-    *   Increase the rate at which other users leave.
-    *   Potentially "infect" other users, turning them into trolls.
-*   **Moderator Interaction:** Moderators will have the ability to identify and "ban" trolls, removing them from the server.
+### 4.2. Trolls (Bad Users)
+- **Concept:** Trolls are a negative user type that actively harms the server's productivity.
+- **Mechanic:** Trolls will occasionally post messages that generate negative bits or temporarily reduce the bit generation rate in a channel. They may also increase the churn rate of regular users. Moderators would be essential to counteract the effects of trolls.
 
-## 7. Channel Leveling and Bit Generation
+## 5. Meta Progression
 
-*   **Channel Experience:** Individual channels can also gain experience and level up, similar to servers.
-*   **Increased Bits:** Higher-level channels will generate more bits per user post. This creates an incentive for players to focus on developing specific channels.
-
-## 8. Meta Progression
-
-*   **Discord Updates:** Meta progression will be represented by updates to the "Discord client" itself. These updates can be purchased with a large number of bits or unlocked through server-level milestones.
-*   **New Features:** These updates will unlock significant new features, such as:
-    *   Live streaming capabilities in voice channels.
-    *   Server boosting mechanics.
-    *   Advanced moderator bots.
+### 5.1. Discord Updates
+- **Concept:** A meta-progression system outside of individual server management.
+- **Mechanic:** Players can spend a large number of bits to "update Discord," unlocking permanent global upgrades that apply to all servers, such as:
+    - A permanent reduction in user churn.
+    - A global boost to bit generation.
+    - New types of channels or user roles with unique benefits.

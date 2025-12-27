@@ -9,6 +9,8 @@ export interface RootState {
 
 export interface Server {
   name: string;
+  moderators: number;
+  influencers: number;
 }
 
 export interface ServersState {

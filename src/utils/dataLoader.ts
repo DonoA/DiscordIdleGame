@@ -14,7 +14,7 @@ export const loadInitialData = async () => {
   const serverName = randomServerInfo.name;
 
   // Create server
-  servers[serverName] = { name: serverName };
+  servers[serverName] = { name: serverName, moderators: 0, influencers: 0 };
   users.usersByServer[serverName] = [];
   messages.byServer[serverName] = {};
   channels.textByServer[serverName] = {};

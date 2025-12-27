@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { addServer, addTextChannel, addVoiceChannel, addUser, toggleDevMode, addRandomMessage, spendBits, addMessageCount } from '../actions';
+import { addServer, addTextChannel, addVoiceChannel, toggleDevMode, addRandomMessage, spendBits, addMessageCount, addModerator, addInfluencer } from '../actions';
 import { formatNumber } from '../utils/formatting';
 import { getData } from '../utils/dataCache';
 import { RootState, ServerData, UserData } from '../types';
 import { useAppDispatch } from '../store';
 import HelpMenu from './HelpMenu';
-import { SERVER_COST, TEXT_CHANNEL_COST, VOICE_CHANNEL_COST, USER_COST } from '../constants';
+import { SERVER_COST, TEXT_CHANNEL_COST, VOICE_CHANNEL_COST, USER_COST, MODERATOR_COST, INFLUENCER_COST } from '../constants';
+import { createNewUser } from '../utils/userHelpers';
+import { getUniqueName } from '../utils/nameHelpers';
 
 const ControlPanel = () => {
   const dispatch = useAppDispatch();
@@ -14,7 +16,7 @@ const ControlPanel = () => {
   const { selectedServer, selectedChannel, devMode } = ui;
   const { currentBits, totalBits } = bits;
   const [serverThemes, setServerThemes] = useState<ServerData[]>([]);
-  const [userNames, setUserNames] = useState<UserData>([]);
+  const [, setUserNames] = useState<UserData>([]);
 
 
   useEffect(() => {
@@ -44,22 +46,24 @@ const ControlPanel = () => {
     const adjustedCount = Math.max(0, numChannels + num - 2);
     return Math.floor(channelCost.base * (channelCost.growth ** (adjustedCount)));
   }
+  const getModeratorCost = (num = 1) => {
+    if (!selectedServer) return 0;
+    const numModerators = (servers[selectedServer]?.moderators || 0) + num - 1;
+    return Math.floor(MODERATOR_COST.base * (MODERATOR_COST.growth ** numModerators));
+  }
+  const getInfluencerCost = (num = 1) => {
+    if (!selectedServer) return 0;
+    const numInfluencers = (servers[selectedServer]?.influencers || 0) + num - 1;
+    return Math.floor(INFLUENCER_COST.base * (INFLUENCER_COST.growth ** numInfluencers));
+  }
 
   const serverCost = getServerCost();
   const textChannelCost = getChannelCost('text');
   const voiceChannelCost = getChannelCost('voice');
   const userCost = getUserCost();
+  const moderatorCost = getModeratorCost();
+  const influencerCost = getInfluencerCost();
 
-  const getUniqueName = (baseName: string, existingNames: string[]) => {
-    if (!existingNames.includes(baseName)) {
-      return baseName;
-    }
-    let i = 2;
-    while (existingNames.includes(`${baseName}-${i}`)) {
-      i++;
-    }
-    return `${baseName}-${i}`;
-  };
 
   const handleAddMessage = () => {
     if (selectedServer && selectedChannel) {
@@ -161,13 +165,34 @@ const ControlPanel = () => {
         dispatch(spendBits(cost));
       }
 
+      const existingUserNames = users.usersByServer[selectedServer] || [];
       for (let i = 0; i < count; i++) {
-        const randomUser = userNames[Math.floor(Math.random() * userNames.length)];
-        const allowedName = `${randomUser}${Date.now() + i}`; // Ensure uniqueness
-        if (selectedServer) dispatch(addUser(selectedServer, allowedName) as any);
+        createNewUser(selectedServer, dispatch, existingUserNames);
       }
     } else {
       alert('Please select a server first.');
+    }
+  };
+
+  const handleAddModerator = () => {
+    if (selectedServer) {
+      const cost = getModeratorCost();
+      if (!devMode && currentBits < cost) {
+        return;
+      }
+      dispatch(spendBits(cost));
+      dispatch(addModerator(selectedServer) as any);
+    }
+  };
+
+  const handleAddInfluencer = () => {
+    if (selectedServer) {
+      const cost = getInfluencerCost();
+      if (!devMode && currentBits < cost) {
+        return;
+      }
+      dispatch(spendBits(cost));
+      dispatch(addInfluencer(selectedServer) as any);
     }
   };
 
@@ -218,6 +243,16 @@ const ControlPanel = () => {
         <button onClick={() => handleAddServer(1)} disabled={!devMode && bits.currentBits < serverCost}>+1</button>
         <button onClick={() => handleAddServer(10)} disabled={!devMode && bits.currentBits < serverCost * 10}>+10</button>
         <button onClick={() => handleAddServer(100)} disabled={!devMode && bits.currentBits < serverCost * 100}>+100</button>
+      </div>
+      <div>
+        <span>Add Moderator (Cost: {formatNumber(moderatorCost)})</span>
+        <br />
+        <button onClick={handleAddModerator} disabled={!selectedServer || (!devMode && bits.currentBits < moderatorCost)}>+1</button>
+      </div>
+      <div>
+        <span>Add Influencer (Cost: {formatNumber(influencerCost)})</span>
+        <br />
+        <button onClick={handleAddInfluencer} disabled={!selectedServer || (!devMode && bits.currentBits < influencerCost)}>+1</button>
       </div>
     </div>
   );

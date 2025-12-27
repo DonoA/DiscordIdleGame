@@ -1,4 +1,5 @@
-import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits, addMessageCount } from './actions';
+import { userJoinVoice, userLeaveVoice, addRandomMessage, incrementBits, addMessageCount, removeUser } from './actions';
+import { createNewUser } from './utils/userHelpers';
 import { Store } from 'redux';
 import { RootState, TextChannel } from './types';
 import {
@@ -6,7 +7,10 @@ import {
   LEAVE_CHANNEL_CHANCE_PER_TICK,
   JOIN_CHANNEL_CHANCE_PER_TICK,
   BITS_PER_MESSAGE,
-  VOICE_CHANNEL_MULTIPLIER
+  VOICE_CHANNEL_MULTIPLIER,
+  USER_LEAVE_CHANCE_PER_TICK,
+  MODERATOR_LEAVE_PREVENTION,
+  INFLUENCER_JOIN_CHANCE_PER_TICK
 } from './constants';
 
 export const runSimulation = (store: Store<RootState> | any, tick: number) => {
@@ -66,6 +70,31 @@ export const runSimulation = (store: Store<RootState> | any, tick: number) => {
         // Store fractional message counts for more accurate simulation
         store.dispatch(addMessageCount(serverName, channel.name, messageCount));
       });
+    }
+  });
+
+  // --- User Churn and Influencer Simulation ---
+  serverNames.forEach(serverName => {
+    const server = servers[serverName];
+    const serverUsers = users.usersByServer[serverName] || [];
+    
+    // User churn
+    if (serverUsers.length > 0) {
+      const leaveChance = USER_LEAVE_CHANCE_PER_TICK - (server.moderators * MODERATOR_LEAVE_PREVENTION);
+      serverUsers.forEach((userName: string) => {
+        if (Math.random() < leaveChance) {
+          store.dispatch(removeUser(serverName, userName) as any);
+        }
+      });
+    }
+
+    // Influencer logic
+    if (server.influencers > 0) {
+      const joinChance = INFLUENCER_JOIN_CHANCE_PER_TICK * server.influencers;
+      if (Math.random() < joinChance) {
+        const existingUserNames = users.usersByServer[serverName] || [];
+        createNewUser(serverName, store.dispatch, existingUserNames);
+      }
     }
   });
 };

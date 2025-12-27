@@ -23,6 +23,8 @@ const ChannelList = () => {
     <div className="channel-list">
       <h2>{server.name}</h2>
       <div>Users: {users.length}</div>
+      <div>Moderators: {server.moderators || 0}</div>
+      <div>Influencers: {server.influencers || 0}</div>
       <div className="channel-category">
         <h4>Text Channels</h4>
         {textChannels.map(channel => (
